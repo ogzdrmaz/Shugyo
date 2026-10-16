@@ -206,19 +206,29 @@ body[data-theme="night"] .theme-tile.selected,body[data-theme="night"] .length-c
  .duration-preset{font-size:10px}
 }
 
+
+/* Final minimal refinements */
+header .day-pill, header .settings-open { display:none !important; }
+.brand-copy p { display:none !important; }
+.home-kicker { display:none !important; }
+.simple-duration { display:flex; align-items:center; gap:12px; justify-content:space-between; }
+.simple-duration label { margin:0; }
+.simple-duration input { width:88px; padding:10px 8px; text-align:center; }
+#homeView .home-intro { padding-top:24px; }
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
   <div class="brand"><div class="mark">S</div><div><h1>SHUGYO</h1><p>Her gün küçük bir adım.</p></div></div>
-  <button class="day-pill settings-open" onclick="showView('settingsView','settings')" aria-label="Ayarlar">⚙ Ayarlar</button>
+  
 </header>
 
 <main>
 <section class="view active" id="homeView">
   <div class="home-intro">
-    <p class="home-kicker" id="challengeKicker">100 GÜNLÜK YOLCULUK</p>
+    
     <div class="challenge-progress"><div class="challenge-progress-meta"><span id="challengeDayLabel">1. gün</span><span id="challengeProgressLabel">0%</span></div><div class="challenge-track"><div id="challengeProgressBar"></div></div></div>
     <blockquote class="sun-tzu-quote">“Her savaş, yapılmadan önce kazanılır ya da kaybedilir.”<cite>— Sun Tzu, Savaş Sanatı</cite></blockquote>
   </div>
@@ -285,11 +295,11 @@ body[data-theme="night"] .theme-tile.selected,body[data-theme="night"] .length-c
 <section class="view" id="silenceView">
   <button class="back" onclick="showView('homeView','home')">← Ana sayfa</button>
   <p class="eyebrow">BÖLÜM 02</p><h2>Sessizlik</h2>
-  <p class="lead">Telefonu ve müziği bırak. Otur, nefesini doğal akışında izle ve zihninden geçenleri değiştirmeye çalışmadan fark et.</p>
+  
   <div class="panel">
-    <div class="field"><label for="silenceDuration">Seans süresi</label><div class="duration-presets">
-      <button class="duration-preset" data-minutes="3">3 dk</button><button class="duration-preset active" data-minutes="5">5 dk</button><button class="duration-preset" data-minutes="10">10 dk</button><button class="duration-preset" data-minutes="15">15 dk</button><button class="duration-preset" data-minutes="20">20 dk</button><button class="duration-preset" data-minutes="30">30 dk</button>
-    </div><div class="custom-duration"><span>Özel süre</span><input id="silenceDuration" type="number" min="1" max="180" value="5" inputmode="numeric"><span>dakika</span></div></div>
+    <div class="field simple-duration"><label for="silenceDuration">Süre (dakika)</label>
+      <input id="silenceDuration" type="number" min="1" max="180" value="5" inputmode="numeric">
+    </div>
     <div class="timer-wrap">
       <div class="timer-sub" id="timerStatus">Hazır olduğunda başlat.</div>
       <div class="timer-ring"><div class="timer" id="timerDisplay">05:00</div></div>
@@ -414,15 +424,6 @@ function setDuration(){const m=Math.min(180,Math.max(1,Math.floor(Number($('sile
 function updateTimer(){const m=Math.floor(remaining/60),s=Math.floor(remaining%60);$('timerDisplay').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;$('timerProgress').style.width=`${total?100*(total-remaining)/total:0}%`}
 function tick(now){if(!running)return;if(!lastTick)lastTick=now;const delta=(now-lastTick)/1000;lastTick=now;remaining=Math.max(0,remaining-delta);updateTimer();if(remaining<=0){running=false;paused=false;$('timerStatus').textContent='Süre doldu. Seansı kaydedebilirsin.';$('startTimer').disabled=true;$('pauseTimer').disabled=true;$('finishSilence').disabled=false;return}raf=requestAnimationFrame(tick)}
 $('silenceDuration').addEventListener('change',setDuration);
-document.querySelectorAll('.duration-preset').forEach(b=>b.addEventListener('click',()=>{
- if(running)return;
- $('silenceDuration').value=b.dataset.minutes;
- document.querySelectorAll('.duration-preset').forEach(x=>x.classList.toggle('active',x===b));
- setDuration();
-}));
-$('silenceDuration').addEventListener('input',()=>{
- document.querySelectorAll('.duration-preset').forEach(x=>x.classList.toggle('active',x.dataset.minutes===$('silenceDuration').value));
-});
 $('startTimer').addEventListener('click',()=>{if(remaining<=0)setDuration();running=true;paused=false;lastTick=0;$('timerStatus').textContent='Sessizlik zamanı';$('startTimer').disabled=true;$('pauseTimer').disabled=false;$('finishSilence').disabled=false;raf=requestAnimationFrame(tick)});
 $('pauseTimer').addEventListener('click',()=>{if(running){running=false;paused=true;cancelAnimationFrame(raf);$('timerStatus').textContent='Duraklatıldı';$('startTimer').disabled=false;$('startTimer').textContent='Devam et';$('pauseTimer').disabled=true}else if(paused){running=true;paused=false;lastTick=0;$('timerStatus').textContent='Sessizlik zamanı';$('startTimer').disabled=true;$('pauseTimer').disabled=false;raf=requestAnimationFrame(tick)}});
 $('resetTimer').addEventListener('click',()=>{running=false;paused=false;cancelAnimationFrame(raf);$('startTimer').disabled=false;$('startTimer').textContent='Başlat';$('pauseTimer').disabled=true;$('finishSilence').disabled=true;$('timerStatus').textContent='Hazır olduğunda başlat.';setDuration()});
@@ -432,7 +433,7 @@ function uniqueDays(arr){return new Set(arr.map(x=>x.date)).size}
 function rows(tableId,items,kind){const tb=$(tableId);if(!items.length){tb.innerHTML=`<tr><td colspan="3" class="empty">Henüz kayıt yok.</td></tr>`;return}tb.innerHTML=items.slice().reverse().map(x=>kind==='reading'?`<tr><td>${fmtDate(x.date)}</td><td>${esc(x.topic)}</td><td>${x.minutes} dk</td></tr>`:`<tr><td>${fmtDate(x.date)}</td><td>${x.minutes} dk</td><td>${esc(x.status||'Tamamlandı')}</td></tr>`).join('')}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function renderAll(){
-renderChallenge();const r=data.reading,s=data.silence;const all=[...r,...s];const readDone=r.some(x=>x.date===todayKey()), silenceDone=s.some(x=>x.date===todayKey());$('todayReadStatus').textContent=readDone?'Tamamlandı':'Henüz değil';$('todayReadStatus').classList.toggle('done',readDone);$('todaySilenceStatus').textContent=silenceDone?'Tamamlandı':'Henüz değil';$('todaySilenceStatus').classList.toggle('done',silenceDone);
+renderChallenge();const r=data.reading,s=data.silence;const all=[...r,...s];const readDone=r.some(x=>x.date===todayKey()), silenceDone=s.some(x=>x.date===todayKey());$('todayReadStatus').textContent=readDone?'Tamamlandı':'Başlamadı';$('todayReadStatus').classList.toggle('done',readDone);$('todaySilenceStatus').textContent=silenceDone?'Tamamlandı':'Başlamadı';$('todaySilenceStatus').classList.toggle('done',silenceDone);
 $('readTotal').textContent=sum(r);$('readSessions').textContent=r.length;$('readDays').textContent=uniqueDays(r);$('silenceTotal').textContent=sum(s);$('silenceSessions').textContent=s.length;$('silenceDays').textContent=uniqueDays(s);
 $('allDays').textContent=uniqueDays(all);$('allRead').textContent=sum(r);$('allQuiet').textContent=sum(s);
 rows('readingRows',r,'reading');rows('silenceRows',s,'silence');
