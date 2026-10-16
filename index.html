@@ -238,6 +238,20 @@ header .day-pill, header .settings-open { display:none !important; }
 .choice-copy small{font:10px ui-sans-serif,-apple-system,sans-serif;color:var(--muted)}
 .choice-arrow{font-size:18px;color:var(--muted)}
 
+
+.single-length{grid-template-columns:1fr}
+.article-reader{margin:16px 0;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:18px}
+.article-reader[hidden]{display:none!important}
+.article-reader h2{font-size:clamp(27px,7vw,36px);margin-bottom:20px}
+.article-body p{font:15px/1.85 ui-serif,Georgia,serif;margin:0 0 17px;color:var(--text)}
+.remember-box{margin-top:24px;padding:16px;border-left:3px solid var(--accent);background:var(--panel2);border-radius:0 12px 12px 0}
+.remember-box b,.article-sources>b{font:12px ui-sans-serif,-apple-system,sans-serif;letter-spacing:.03em}
+.remember-box p{font:14px/1.65 ui-sans-serif,-apple-system,sans-serif;margin:8px 0 0}
+.article-sources{display:grid;gap:9px;margin-top:20px;font:12px ui-sans-serif,-apple-system,sans-serif}
+.article-sources a{color:var(--accent);text-decoration:underline;text-underline-offset:3px;line-height:1.5}
+#topicSelect{background:var(--panel);color:var(--text)}
+.length-options .length-choice{width:100%}
+
 </style>
 </head>
 <body>
@@ -279,9 +293,8 @@ header .day-pill, header .settings-open { display:none !important; }
 
   <div class="reading-step">
     <div class="step-label"><span>01</span> Süre</div>
-    <div class="length-options">
-      <button class="length-choice selected" data-length="5"><strong>5 dakika</strong><span>Kısa okuma</span></button>
-      <button class="length-choice" data-length="10"><strong>10 dakika</strong><span>Derin okuma</span></button>
+    <div class="length-options single-length">
+      <button class="length-choice selected" data-length="5" type="button"><strong>5 dakika</strong><span>Tek okuma</span></button>
     </div>
   </div>
   <div class="reading-step">
@@ -309,9 +322,18 @@ header .day-pill, header .settings-open { display:none !important; }
   <div class="section-title compact-section"><h3>Okuma seç</h3></div>
   <div class="reading-choices" id="readingChoices">
     <button class="reading-choice" data-reading="0"><span class="choice-index">01</span><span class="choice-copy"><b id="choiceTitle0">Birinci okuma</b><small id="choiceMeta0">5 dakika · Bilim</small></span><span class="choice-arrow">↗</span></button>
-    <button class="reading-choice" data-reading="1"><span class="choice-index">02</span><span class="choice-copy"><b id="choiceTitle1">İkinci okuma</b><small id="choiceMeta1">5 dakika · Bilim</small></span><span class="choice-arrow">↗</span></button>
+    <button class="reading-choice" data-reading="1"><span class="choice-index">02</span><span class="choice-copy"><b id="choiceTitle1">Özet</b><small id="choiceMeta1">Aklında kalsın</small></span><span class="choice-arrow">↗</span></button>
   </div>
-  <div class="read-log">
+  <article class="article-reader" id="articleReader" hidden>
+    <button class="back" id="closeArticle">← Konulara dön</button>
+    <p class="eyebrow" id="articleCategory">BİLİM VE EVREN</p>
+    <h2 id="articleTitle"></h2>
+    <div class="article-body" id="articleBody"></div>
+    <div class="remember-box"><b>Aklında kalsın</b><p id="articleTakeaway"></p></div>
+    <div class="article-sources"><b>Kaynaklar</b><div id="articleSources"></div></div>
+    <button class="btn" id="completeArticle" style="width:100%;margin-top:16px">Okumayı bitirdim · Kaydet</button>
+  </article>
+  <div class="read-log" id="read-log" hidden>
     <label for="readMinutes">Okuma süresi (dakika)</label><div class="log-inline"><input id="readMinutes" type="number" min="1" max="600" value="5" inputmode="numeric"><button class="btn" id="saveReading">Kaydet ↗</button></div>
   </div>
   <div class="section-title compact-section"><h3>Son okumalar</h3></div>
@@ -409,15 +431,16 @@ function renderChallenge(){
  const start=new Date((settings.start||todayKey())+'T00:00:00');const now=new Date(todayKey()+'T00:00:00');
  const elapsed=Math.max(0,Math.floor((now-start)/86400000));const days=Math.max(1,Number(settings.days)||100);
  const day=Math.min(days,elapsed+1);const pct=Math.min(100,Math.round(elapsed/days*100));
- $('challengeKicker').textContent=days+' GÜNLÜK YOLCULUK';
+ const kicker=$('challengeKicker');if(kicker)kicker.textContent=days+' GÜNLÜK YOLCULUK';
  $('challengeDayLabel').textContent=elapsed>=days?'Challenge tamamlandı':day+'. gün / '+days;
  $('challengeProgressLabel').textContent=pct+'%';$('challengeProgressBar').style.width=pct+'%';
  $('challengeDays').value=days;$('challengeStart').value=settings.start||todayKey();
 }
 
 const fmtDate=s=>{const [y,m,d]=s.split('-');return `${d}.${m}.${y}`};
+const ARTICLES=[{"title": "Kara delikler: Işığın bile dönemediği sınır", "topic": "Kara deliklerin gizemi", "body": ["Kara delik, uzayda çevresindeki maddeyi gelişigüzel içine çeken kozmik bir elektrik süpürgesi değildir. Çok büyük miktarda kütlenin küçük bir hacimde yoğunlaşmasıyla oluşan ve yakın çevresinde olağanüstü güçlü kütleçekimi yaratan bir gök cismidir. Belirleyici sınırına “olay ufku” denir: Bu sınırın içinden ışık bile dışarı çıkamaz. Bu yüzden kara deliğin içini doğrudan görmeyiz.", "Öyleyse bilim insanları görünmeyen bir şeyi nasıl araştırıyor? Çevresindeki etkilerini izleyerek. Bir kara deliğin yakınındaki gaz ve toz ısınıp ışınım yayabilir. Yakındaki yıldızlar görünmeyen büyük bir kütlenin çevresinde yörünge izleyebilir. Çok büyük cisimlerin hareketleri uzay-zamanda dalgalanmalar, yani kütleçekim dalgaları oluşturabilir. Bu izler kara deliklerin varlığına dair kanıt sağlar.", "Kara deliklerin hepsi aynı boyutta değildir. Büyük kütleli yıldızların evriminin sonunda yıldız kütleli kara delikler oluşabilir. Galaksilerin merkezlerinde ise Güneş’in milyonlarca, hatta milyarlarca katı kütleye sahip süper kütleli kara delikler bulunabilir. Samanyolu’nun merkezindeki Sagittarius A* da bu gruptadır.", "Bir kara deliğin çekimi, aynı kütleye sahip başka bir cismin çekiminden uzakta sihirli biçimde daha güçlü değildir. Güneş aynı kütlede bir kara delikle değiştirilseydi, gezegenlerin yörüngeleri ideal koşullarda hemen değişmezdi; fakat Güneş ışığı ve ısısı kaybolacağı için Dünya yaşanabilir olmazdı. Asıl tehlike, olay ufkuna çok yaklaşmaktır.", "Kara delikler hem bilinen fizik yasalarını sınar hem de henüz yanıtlayamadığımız soruları büyütür. Olay ufkunun içinde ne olduğu konusunda önemli bilinmezler sürüyor. Bilimde güçlü olmak, yalnızca cevapları ezberlemek değil; hangi soruların hâlâ açık olduğunu da bilmektir."], "takeaway": "Kara delikler görünmez olsalar da çevrelerindeki gazı, yıldızları ve uzay-zamanı etkileyerek saptanabilir. Her şeyi uzaktan içine çeken kozmik elektrik süpürgeleri değillerdir.", "sources": [["NASA — Black Holes", "https://science.nasa.gov/universe/black-holes/"], ["NASA — What Are Black Holes?", "https://www.nasa.gov/universe/what-are-black-holes/"]]}, {"title": "Mars: Bir zamanlar daha ıslak bir dünya", "topic": "Mars’ta yaşam arayışı", "body": ["Mars bugün soğuk, tozlu ve çok ince bir atmosfere sahip bir gezegendir. Yüzeyi kırmızı görünür; bunun önemli nedenlerinden biri topraktaki demir minerallerinin oksitlenmesidir. Ancak Mars’ın geçmişi bugünkü görünümünden farklı olabilir. Yörünge araçları ve yüzey gezginleri, eski nehir vadilerine, deltalara ve göl yataklarına benzeyen jeolojik izler buldu.", "Bu şekiller önemlidir, çünkü Dünya’da benzer oluşumlar çoğunlukla suyun hareketiyle meydana gelir. Mars’taki bazı kaya ve mineraller de geçmişte sıvı suyla etkileşim yaşandığına işaret eder. Bilim insanları milyarlarca yıl önce Mars’ın daha sıcak, daha ıslak ve daha kalın bir atmosfere sahip olmuş olabileceğini düşünüyor. Bunun ne kadar sürdüğü ve gezegenin nasıl kuraklaştığı hâlâ araştırılıyor.", "Bugün Mars’ta su tamamen yok değildir. Kutuplarda ve yüzeyin altında su buzu bulunur; kayaçların içinde de suya ait izler olabilir. Ancak gezegenin yüzey basıncı çok düşük olduğu için sıvı su, Dünya’daki gibi göller ve akarsular hâlinde uzun süre kararlı kalamaz. Geçmişte görülen su izlerini, bugün yüzeyde bol miktarda sıvı su bulunduğu şeklinde yorumlamamak gerekir.", "Su, yaşam arayışında önemli bir ipucudur; çünkü Dünya’daki bilinen yaşam suya ihtiyaç duyar. Yine de su izleri tek başına geçmişte veya bugün yaşam bulunduğunu kanıtlamaz. Bir ortamın yaşama elverişli olmasıyla orada gerçekten yaşamın oluşmuş olması farklı iddialardır. Bu yüzden Mars görevleri kayaçları, mineralleri ve çevresel koşulları ayrıntılı biçimde inceler.", "Mars araştırmalarının asıl gücü, tek bir fotoğrafa bakıp kesin sonuca varmak yerine farklı kanıtları bir araya getirmesidir. Her yeni kaya örneği, gezegenin iklim geçmişine dair bir parçayı tamamlayabilir. Bilimsel merak bazen “yaşam var mı?” sorusundan önce “bu ortam nasıl değişti?” sorusunu yanıtlamayı gerektirir."], "takeaway": "Mars’ın geçmişte sıvı su barındırdığına dair güçlü jeolojik kanıtlar var. Bugünkü su çoğunlukla buz veya kayaçlarla ilişkili; su izleri tek başına yaşam kanıtı değil.", "sources": [["NASA — Mars Facts", "https://science.nasa.gov/mars/facts/"], ["NASA — Is There Water on Mars?", "https://www.nasa.gov/science-research/planetary-science/is-there-water-on-mars-we-asked-a-nasa-scientist-episode-18/"]]}, {"title": "Uyku ve hafıza: Beyin gece ne yapar?", "topic": "Uyku hafızayı nasıl etkiler?", "body": ["Uyku, beynin kapandığı bir boşluk değildir. Uyurken beyin farklı evrelerden geçer ve bu evreler gece boyunca birkaç kez tekrar eder. Uykunun bazı aşamaları dinlenme hissiyle, bazıları ise öğrenme ve anıların oluşmasıyla ilişkilidir. Bu nedenle bir konuyu öğrenmek yalnızca çalıştığın dakikalardan ibaret değildir; uyku da öğrenme sürecinin bir parçasıdır.", "Yeni bilgiyle karşılaştığında beyin, deneyimin izlerini oluşturur. Ancak bu izler başlangıçta kırılgan olabilir. Hafıza pekişmesi adı verilen süreçlerde anılar zaman içinde daha kararlı hâle gelebilir ve önceki bilgilerle ilişkilendirilebilir. Araştırmalar, yeterli uykunun öğrenilen bilgilerin hafızada tutulmasını desteklediğini gösteriyor. Bu, gece boyunca bilinçli biçimde ders çalıştığın anlamına gelmez; beynin uykuda bilgiyi işleme biçimi daha karmaşıktır.", "Burada önemli bir ayrım var: Uyumadan önce öğrenilenleri pekiştirmek ile uyurken tamamen yeni ve karmaşık bir bilgiyi öğrenmek aynı şey değildir. Uyku sırasında bazı basit öğrenme etkileri araştırılmış olsa da, örneğin yabancı bir dili yalnızca ses kaydı dinleyerek uykuda öğrenmek gibi iddialar için kanıtlar yeterince güçlü ve tutarlı değildir.", "Az uyumak yalnızca ertesi gün yorgun hissetmekle sınırlı kalmayabilir. Uyku kısıtlaması üzerine yapılan araştırmalar, hafıza oluşumunun olumsuz etkilenebildiğini gösteriyor. Dikkat ve bilgiyi işleme becerileri de uykusuzluktan etkilenebilir. Bu yüzden uzun süre uyanık kalmayı başarı göstergesi saymak, öğrenmenin biyolojik koşullarını göz ardı eder.", "Pratik bir sonuç çıkarabiliriz: Yeni bir şey öğrendiğinde, onu kısa aralıklarla tekrar etmek ve düzenli uyumak, yalnızca saatlerce aralıksız çalışmaktan daha akıllıca bir yaklaşım olabilir. Elbette uyku her öğrenme sorununu çözmez; tekrar, dikkat ve uygun çalışma yöntemi de önemlidir. Ama zihinsel performans için dinlenmeyi lüks değil, sistemin bir parçası olarak görmek gerekir."], "takeaway": "Uyku, önceden öğrenilen bilgilerin hafızada pekişmesine yardımcı olur. Bu, uykuda karmaşık yeni bilgileri kolayca öğrenebileceğimiz anlamına gelmez.", "sources": [["NIH / NICHD — About Sleep", "https://www.nichd.nih.gov/health/topics/factsheets/sleep"], ["PubMed — Learning during sleep in humans: A historical review", "https://pubmed.ncbi.nlm.nih.gov/37778137/"], ["PubMed — Sleep restriction and memory formation", "https://pubmed.ncbi.nlm.nih.gov/39427809/"]]}, {"title": "Okyanusun derinlikleri: Haritalanmamış bir dünya", "topic": "Okyanusun keşfedilmemiş derinlikleri", "body": ["Okyanus yüzeyinden aşağı indikçe güneş ışığı hızla azalır. Yaklaşık 200 metrenin altında ışık, fotosentez yapan canlılar için giderek yetersizleşir; daha derinlerdeyse doğal güneş ışığı neredeyse tamamen kaybolur. Bu karanlık, yaşamın sona erdiği anlamına gelmez. Derin deniz canlıları düşük sıcaklık, yüksek basınç ve sınırlı besin gibi koşullara farklı biçimlerde uyum sağlamıştır.", "Derin denizdeki basınç, derinlik arttıkça yükselir. İnsan bedeni böyle koşullara özel koruma olmadan dayanamaz; araştırma araçlarının da bu basınca göre tasarlanması gerekir. Uzaktan kumandalı araçlar ve otonom su altı robotları, insanların doğrudan ulaşmasının zor olduğu bölgelerden görüntü ve ölçüm toplar. Böylece deniz tabanındaki dağlar, vadiler, sıcak su çıkışları ve canlı toplulukları incelenebilir.", "Derin denizdeki bazı ekosistemler güneş ışığına değil, kimyasal enerjiye dayanır. Hidrotermal bacaların çevresinde, Dünya’nın içinden gelen sıcak ve mineraller bakımından zengin sıvılar okyanus suyuyla karşılaşır. Bazı mikroorganizmalar kimyasal maddelerden enerji elde eder; bu mikroorganizmalar da daha büyük canlıların besin ağının temelini oluşturabilir. Bu süreç, yaşamın enerji kaynaklarının yalnızca güneş ışığıyla sınırlı olmadığını gösterir.", "Yine de okyanus tabanını bütünüyle tanıdığımızı düşünmek yanlış olur. Haritalama, doğrudan gözlem ve biyolojik örnekleme farklı şeylerdir: Bir bölgenin genel şekli bilinse bile oradaki canlıları, kimyasal özellikleri veya zaman içindeki değişimleri ayrıntılı olarak bilmiyor olabiliriz. Yeni araçlar daha önce görülmeyen türleri ve jeolojik yapıları ortaya çıkarabilir.", "Derin deniz araştırmaları yalnızca merak için yapılmaz. Okyanus, iklim sisteminde, karbon döngüsünde ve gezegenin biyolojik çeşitliliğinde önemli rol oynar. Onu anlamak, Dünya’nın nasıl çalıştığını anlamaya katkı sağlar. Bazen gezegenimizin en yabancı görünen ortamı, kendi evimiz hakkında en önemli ipuçlarından bazılarını taşır."], "takeaway": "Derin okyanusta güneş ışığı olmadan da yaşam bulunabilir; bazı ekosistemler kimyasal enerjiye dayanır. Haritalama, o bölgenin tüm canlılarını tanımakla aynı şey değildir.", "sources": [["NOAA Ocean Exploration — Deep-sea ecosystems", "https://oceanexplorer.noaa.gov/"], ["NOAA Ocean Exploration — Hydrothermal vents", "https://oceanexplorer.noaa.gov/facts/vents.html"]]}, {"title": "Zamanı nasıl ölçüyoruz?", "topic": "Zamanı nasıl ölçüyoruz?", "body": ["Günlük hayatta zamanı saatlerle ölçeriz; ancak bir saatin ne kadar doğru olduğunu anlamak için ortak ve tekrarlanabilir bir ölçüte ihtiyaç vardır. Tarih boyunca insanlar Güneş’in gökyüzündeki konumunu, gölgeleri, sarkaçları ve mekanik saatleri kullandı. Modern bilimdeyse en hassas ölçümlerin temelinde atomların belirli enerji geçişleri bulunur.", "Atomik saatler, özellikle sezyum atomunun belirli bir geçişine karşılık gelen mikrodalga ışınımının frekansını sayarak zamanı ölçer. Uluslararası Birimler Sistemi’nde saniye, bu geçişin tam olarak 9.192.631.770 periyoduna göre tanımlanır. Bu tanım gündelik sezgilerimizden farklı görünebilir, ama amacı nettir: Dünyanın farklı yerlerinde aynı saniyenin mümkün olduğunca tutarlı biçimde ölçülmesini sağlamak.", "Dünya’nın dönüşü ise kusursuz bir saat gibi sabit değildir. Gelgitler, atmosfer ve Dünya’nın içindeki süreçler dönüş hızında küçük değişikliklere yol açabilir. Bu nedenle astronomik zaman ile atomik saatlere dayanan zaman ölçümü bire bir aynı şey değildir. Günlük hayatımızda bu farkı hissetmeyiz; fakat uydu navigasyonu, haberleşme ve hassas bilimsel deneyler için küçük zaman farkları bile önem taşıyabilir.", "GPS gibi uydu sistemleri, konum hesaplamak için sinyallerin yolculuk süresini ölçer. Radyo sinyalleri ışık hızına yakın hızda yayıldığından, çok küçük bir zaman hatası bile konumda ciddi bir sapmaya dönüşebilir. Ayrıca uyduların hareketi ve Dünya’dan farklı bir yerçekimi ortamında bulunması nedeniyle Einstein’ın görelilik kuramındaki etkiler de hesaba katılır. Bu, göreliliğin yalnızca uzak galaksilerle ilgili soyut bir fikir olmadığını gösteren pratik örneklerden biridir.", "Zaman ölçümü böylece hem günlük yaşamın hem de temel fiziğin kesişiminde durur. Saatler zamanı yaratmaz; belirlenmiş bir ölçüte göre aralıkları sayar. Daha iyi saatler geliştirmek, evreni daha hassas gözlemlememize ve teknolojik sistemleri daha güvenilir çalıştırmamıza yardım eder."], "takeaway": "Modern saniye, sezyum atomunun belirli bir geçişine göre tanımlanır. Uydu navigasyonu gibi sistemler için çok küçük zaman farkları bile önemlidir.", "sources": [["BIPM — The International System of Units (SI)", "https://www.bipm.org/en/publications/si-brochure"], ["NIST — A Walk Through Time", "https://www.nist.gov/pml/time-and-frequency-division/popular-links/walk-through-time"]]}, {"title": "Beyin yeni şeyleri nasıl öğrenir?", "topic": "Beyin yeni şeyleri nasıl öğrenir?", "body": ["Öğrenme, beynin içine bilgi koyduğumuz bir dolap gibi işlemez. Yeni bir beceri veya kavram edinmek, sinir hücreleri arasındaki bağlantıların etkinliğinde ve bazı durumlarda yapısında değişiklikler meydana gelmesiyle ilişkilidir. Bu değişebilirlik, yani nöroplastisite, deneyimle birlikte sinir sisteminin kendini uyarlayabilmesinin temel özelliklerinden biridir.", "Bir bilgiyi ilk kez duymak, onu kalıcı olarak öğrendiğimiz anlamına gelmez. Dikkat, tekrar, önceki bilgilerle bağlantı kurma ve zaman içinde bilgiyi yeniden hatırlama, öğrenmenin niteliğini etkileyebilir. Örneğin bir kavramı kendi cümlelerinle açıklamak, yalnızca metni tekrar okumaktan farklı bir zihinsel iş gerektirir. Bu sırada hangi noktaları anladığını, hangilerinde boşluk olduğunu daha kolay fark edebilirsin.", "Aralıklı tekrar da bu yüzden yararlı olabilir. Bir konuyu tek oturuşta defalarca gözden geçirmek yerine farklı zamanlarda yeniden hatırlamaya çalışmak, bilgiyi uzun süreli bellekte tutmaya yardımcı olabilir. Bunun her konu ve her kişi için tek bir ideal aralığı yoktur; amaç, bilgiyi unutmaya başladığında onu yeniden zihinden çağırmak için fırsatlar oluşturmaktır.", "Hata yapmak öğrenmenin karşıtı değildir. Bir soruya yanlış yanıt verip ardından doğru açıklamayı görmek, hangi düşünce yolunun işe yaramadığını anlamana yardımcı olabilir. Ancak hatayı fark etmek ve düzeltici geri bildirim almak önemlidir; yalnızca aynı yanlış yanıtı tekrar etmek öğrenmeyi garanti etmez.", "Öğrenmenin bir diğer unsuru da dinlenmedir. Uyku ve molalar, dikkatini yeniden toparlamanı sağlar; uyku ayrıca bazı anıların pekişmesine katkıda bulunur. Bu nedenle etkili öğrenme yalnızca çalışma süresini uzatmak değil, dikkatli çalışma, hatırlama pratiği, geri bildirim ve dinlenmeyi bir araya getirmektir.", "Bir şeyi öğrenmek istediğinde küçük bir deney yap: Kısa bir metin oku, kapat ve ana fikrini kendi sözlerinle anlat. Sonra metne dönüp kaçırdığın noktaları kontrol et. Bu basit yöntem, “tanıdık geliyor” hissiyle gerçekten hatırlayabilmeyi birbirinden ayırır."], "takeaway": "Öğrenme; dikkat, anlamlandırma, hatırlama pratiği, geri bildirim ve dinlenmenin birleşimidir. Bir metni tanımak, onu yardımsız hatırlayabildiğin anlamına gelmez.", "sources": [["NIH — Brain Basics: Understanding Sleep", "https://www.ninds.nih.gov/health-information/public-education/brain-basics/brain-basics-understanding-sleep"], ["Dunlosky et al. — Improving Students’ Learning With Effective Learning Techniques", "https://journals.sagepub.com/doi/10.1111/j.1539-6053.2013.01002.x"]]}, {"title": "Kuantum dünyasına giriş", "topic": "Kuantum dünyasına giriş", "body": ["Gündelik ölçekte bir topun nerede olduğunu ve nasıl hareket ettiğini yaklaşık olarak tarif edebiliriz. Atom ve atom altı ölçeklerdeyse doğa, klasik sezgilerimize her zaman uymaz. Kuantum mekaniği, bu ölçekteki madde ve ışığın davranışını açıklamak için geliştirilmiş fizik kuramıdır. Garip görünse de yalnızca teorik bir fikir değildir; modern elektronik ve pek çok ölçüm teknolojisinin temelinde yer alır.", "Kuantum kuramında bir sistem, ölçüm yapılmadan önce tek bir klasik durumla açıklanamayabilir. Sistem hakkında farklı olasılıkları bir arada içeren bir kuantum durumu kullanılır. Ölçüm yaptığımızda belirli sonuçlar elde ederiz; kuram, bu sonuçların olasılıklarını hesaplamamıza olanak tanır. Bu, “her şey mümkündür” anlamına gelmez: Olasılıkları belirleyen matematiksel kurallar son derece kısıtlayıcıdır ve deneylerle sınanır.", "Bir diğer önemli kavram süperpozisyondur. Basit anlatımla, kuantum sistemi ölçümden önce birden fazla olası duruma ait katkılar içeren bir durumda olabilir. Fakat bunu küçük bir nesnenin gündelik anlamda aynı anda iki yerde durması gibi düşünmek yanıltıcı olabilir. Kuantum durumunun matematiksel tanımı ve ölçümle kurduğu ilişki, klasik nesnelerden farklıdır.", "Kuantum dolanıklıkta ise iki veya daha fazla sistemin özellikleri, onları birbirinden bağımsız ayrı ayrı tanımlamanın yeterli olmadığı biçimde ilişkilidir. Uygun ölçümler arasında klasik sezgilerle açıklanamayan korelasyonlar görülür. Bu durum ışık hızından hızlı mesaj göndermeye izin vermez; dolanıklık, nedenselliği bozan bir haberleşme yöntemi değildir.", "Kuantum mekaniği, atomların enerji düzeylerinden lazerlere, yarı iletkenlerden atom saatlerine kadar birçok alanda kullanılır. Kuantum bilgisayarlar da bu ilkelerden yararlanmayı amaçlar, ancak her problemi sıradan bilgisayarlardan daha hızlı çözdükleri söylenemez. Hangi görevlerde avantaj sağlayabilecekleri, kullanılan algoritmaya ve donanıma bağlıdır.", "Kuantum dünyasını anlamanın iyi yolu, onu gizemli sözlerle açıklamak değil, hangi deneylerin ne gösterdiğini izlemektir. Bilim bazen sezgilerimizi değiştirir; yine de iddialarını ölçüm ve matematikle sınamak zorundadır."], "takeaway": "Kuantum mekaniği atom altı dünyanın davranışını olasılıklar üzerinden açıklar. Süperpozisyon ve dolanıklık gerçek fiziksel kavramlardır; fakat popüler anlatılardaki her iddiayı doğrulamazlar.", "sources": [["NIST — Quantum Information Science", "https://www.nist.gov/quantum-information-science"], ["Nobel Prize — The Nobel Prize in Physics 2022", "https://www.nobelprize.org/prizes/physics/2022/summary/"]]}, {"title": "Yıldızlar nasıl doğar?", "topic": "Yıldızlar nasıl doğar?", "body": ["Yıldızlar, uzayda bulunan gaz ve toz bulutlarının bazı bölgelerinde oluşur. Bu bulutların önemli bir kısmı hidrojen içerir. Uygun koşullarda, özellikle kütleçekiminin etkisiyle bulutun bir bölgesi büzüşmeye başlar. Madde bir araya geldikçe merkezdeki yoğunluk ve sıcaklık yükselir; zamanla genç yıldızın çekirdeği oluşur.", "Bu süreç her bulutta aynı biçimde veya aynı hızla gerçekleşmez. Bulutun sıcaklığı, yoğunluğu, çevresindeki hareketler ve manyetik alanlar gibi etkenler büzüşmeyi etkileyebilir. Çöken gazın açısal momentumu nedeniyle çevresinde bir disk oluşabilir. Bu disk, bazı koşullarda daha sonra gezegenlerin oluşacağı malzemeyi barındırır.", "Bir yıldızın merkezinde sıcaklık ve basınç yeterince yükseldiğinde nükleer füzyon başlayabilir. Güneş gibi yıldızlarda hidrojen çekirdekleri bir dizi tepkimeyle helyuma dönüşür; bu süreçte enerji açığa çıkar. Yıldızın içe doğru çeken kütleçekimi ile dışa doğru basınç oluşturan enerji üretimi arasında bir denge kurulur. Bu denge, yıldızın uzun süre kararlı biçimde ışık yaymasını sağlar.", "Yıldızın yaşam süresi büyük ölçüde başlangıç kütlesine bağlıdır. Daha büyük kütleli yıldızlar yakıtlarını genellikle daha hızlı tüketir ve evrimlerini daha kısa sürede tamamlar. Güneş gibi yıldızlar milyarlarca yıl boyunca ana evrelerinde kalabilir. Yıldızların yaşamlarının sonu da kütlelerine bağlı olarak farklılaşır; bazıları dış katmanlarını uzaya bırakırken, çok büyük kütleli yıldızlar süpernova patlamasıyla sona erebilir.", "Yıldızlar yalnızca gökyüzünde ışık noktaları değildir. İçlerinde gerçekleşen süreçler, evrendeki birçok elementin oluşumuna ve yayılmasına katkıda bulunur. Gezegenlerin ve yaşamın kimyasal bileşenlerini anlamak için yıldızların nasıl doğup yaşlandığını incelemek gerekir. Gökyüzüne bakmak, aynı zamanda maddenin uzun tarihine bakmaktır."], "takeaway": "Yıldızlar gaz ve toz bulutlarının kütleçekimiyle çökmesi sonucu oluşur. Çekirdekte nükleer füzyon başladığında enerji üretimi, yıldızın uzun süre ışık yaymasını sağlar.", "sources": [["NASA — Stars", "https://science.nasa.gov/universe/stars/"], ["European Space Agency — Star formation", "https://www.esa.int/Science_Exploration/Space_Science/"]]}, {"title": "İnsan vücudunun biyolojik saati", "topic": "İnsan vücudunun biyolojik saati", "body": ["İnsan vücudu gün boyunca aynı biçimde çalışmaz. Uykuya eğilim, uyanıklık, vücut sıcaklığı ve bazı hormonların salınımı yaklaşık 24 saatlik ritimler izler. Bu ritimler sirkadiyen ritimler olarak adlandırılır. Onları yöneten sistem, yalnızca saat kaç olduğunu bilmez; ışık gibi çevresel ipuçlarından yararlanarak iç süreçleri gündüz ve geceyle eşleştirir.", "Beyinde, gözlerden gelen ışık bilgisini alan ve günlük ritimlerin eşgüdümünde rol oynayan bir merkez bulunur. Sabah ışığı, biyolojik saatin çevreyle uyumlanmasına yardımcı olur. Akşam saatlerinde ışığa, özellikle parlak ve göze yakın ışığa maruz kalmak bazı kişilerde uykuya geçiş zamanını etkileyebilir. Etki kişiden kişiye ve ışığın zamanına göre değişir.", "Biyolojik saat yalnızca uykuyu yönetmez. Vücut sıcaklığı, sindirim ve metabolizmayla ilgili bazı süreçler de günün saatine göre değişebilir. Bu yüzden gece vardiyası, sık saat dilimi değişimi veya düzensiz uyku saatleri, iç ritimlerle günlük yaşam programı arasında uyumsuzluk yaratabilir. Bu durum herkes için aynı şiddette yaşanmaz.", "İnsanların sabah mı akşam mı daha uyanık hissettiği konusunda da bireysel farklılıklar vardır. Bu eğilim yaşla ve yaşam koşullarıyla değişebilir. Bu nedenle tek bir ideal programı herkese dayatmak doğru değildir. Yine de düzenli uyanma saati, gündüz doğal ışık almak ve akşam sakin bir rutin oluşturmak, birçok insanın ritmini destekleyebilir.", "Biyolojik saat, iradenin yerine geçen bir mekanizma değildir; davranışlarımızı ve çevremizi düzenlerken hesaba katabileceğimiz bir biyoloji unsurudur. Uykun bozulduğunda yalnızca daha fazla disiplin göstermeye çalışmak yerine ışık, çalışma saatleri, stres ve alışkanlıkların ritmini nasıl etkilediğine bakmak yararlı olabilir. Gerektiğinde kalıcı uyku sorunları için sağlık uzmanına danışmak gerekir."], "takeaway": "Sirkadiyen ritimler vücudun yaklaşık 24 saatlik iç zamanlamasıdır. Işık ve düzenli günlük alışkanlıklar bu ritimlerin çevreyle eşleşmesine yardımcı olabilir.", "sources": [["NIGMS — Circadian Rhythms", "https://www.nigms.nih.gov/education/fact-sheets/Pages/circadian-rhythms.aspx"], ["NHLBI — Circadian Rhythm Disorders", "https://www.nhlbi.nih.gov/health/circadian-rhythm-disorders"]]}, {"title": "Yapay zekâ nasıl öğrenir?", "topic": "Yapay zekâ nasıl öğrenir?", "body": ["Yapay zekâ denince akla insan gibi düşünen makineler gelebilir; ancak birçok güncel sistem, belirli görevlerde örüntü bulmak için eğitilen matematiksel modellerdir. Makine öğrenmesinde sistem, her olası duruma ayrı ayrı kural yazılması yerine, örneklerden istatistiksel ilişkiler öğrenir. Bu öğrenme biçimi güçlü olabilir ama insanın dünyayı anlamasıyla aynı şey değildir.", "Denetimli öğrenmede modele örnekler ve bunlara ait doğru yanıtlar verilir. Örneğin binlerce etiketlenmiş görüntü, bir sistemin görüntülerdeki nesneleri ayırt etmeyi öğrenmesine yardımcı olabilir. Model, tahminleriyle hedef yanıtlar arasındaki hatayı ölçen bir amaç fonksiyonuna göre ayarlanır. Eğitim sırasında bu ayar birçok kez tekrarlanır; amaç, modelin yeni örneklerde de işe yarayan ilişkiler öğrenmesidir.", "Burada ezberleme riski vardır. Model eğitim örneklerine çok iyi uyum sağlarken hiç görmediği örneklerde başarısız olabilir. Bu nedenle veriler genellikle eğitim ve değerlendirme için ayrılır. Modelin yalnızca eğitimde gördüğü örnekleri hatırlayıp hatırlamadığı değil, yeni verilerde ne kadar iyi çalıştığı incelenir. Gerçek dünyadaki veriler eğitim verilerinden farklıysa performans düşebilir.", "Büyük dil modelleri, çok miktarda metin üzerinde dil örüntülerini öğrenerek bir sonraki kelime veya belirteç gibi olası devamları tahmin etmeye yönelik eğitilebilir. Bu yöntem, akıcı metin üretmelerini sağlar; ancak akıcı bir yanıtın otomatik olarak doğru olduğu anlamına gelmez. Model eksik bağlam, yanıltıcı örüntüler veya eğitim verisindeki hatalar nedeniyle yanlış bilgi üretebilir.", "Bu yüzden yapay zekâyı kullanırken iki soruyu ayırmak gerekir: Sistem ne kadar ikna edici konuşuyor ve söylediğini hangi kanıt destekliyor? Özellikle sağlık, hukuk, finans veya güncel bilgilerde kaynak kontrolü önemlidir. İyi bir kullanıcı, yapay zekânın hızından yararlanır ama doğrulama sorumluluğunu tamamen ona devretmez.", "Makine öğrenmesi bir araçtır; sonuçlarının kalitesi kullanılan verilere, tasarıma, değerlendirmeye ve kullanım amacına bağlıdır. Teknolojiyi anlamak, onu ne bütünüyle büyülü ne de bütünüyle işe yaramaz görmek demektir."], "takeaway": "Makine öğrenmesi örneklerden istatistiksel örüntüler çıkarır. Akıcı yanıt, doğruluk garantisi değildir; özellikle önemli konularda bağımsız kaynaklarla kontrol gerekir.", "sources": [["NIST — AI Risk Management Framework", "https://www.nist.gov/itl/ai-risk-management-framework"], ["Google — Machine Learning Crash Course", "https://developers.google.com/machine-learning/crash-course"]]}, {"title": "Atmosfer: Dünya’nın ince koruyucu katmanı", "topic": "Dünya’nın atmosferi nasıl çalışır?", "body": ["Dünya’yı çevreleyen atmosfer, yalnızca nefes aldığımız gazlardan oluşan boş bir örtü değildir. Hava olayları, iklim ve yaşam için gerekli birçok süreç bu gaz tabakasında gerçekleşir. Atmosferin alt katmanlarında hava olaylarının çoğu görülür; yukarı çıkıldıkça sıcaklık, basınç ve gazların davranışı farklılaşır.", "Atmosferin basıncı yükseklik arttıkça azalır, çünkü üzerimizdeki hava sütunu küçülür. Bu yüzden yüksek dağlarda nefes almak zorlaşabilir: havadaki oksijen oranı yaklaşık aynı olsa da toplam hava basıncı daha düşüktür ve her nefeste akciğerlere giren oksijenin kısmi basıncı azalır. İnsan vücudu buna uyum sağlamak için zaman ister.", "Atmosfer Güneş’ten gelen enerjinin Dünya’da nasıl dağıldığını da etkiler. Bazı gazlar, yeryüzünden yayılan kızılötesi ışınımın bir kısmını soğurup yeniden yayarak doğal sera etkisine katkıda bulunur. Bu doğal süreç olmasaydı Dünya’nın ortalama yüzey sıcaklığı çok daha düşük olurdu. Ancak insan faaliyetleriyle sera gazlarının artması, enerji dengesini değiştirerek küresel ısınmaya yol açar.", "Atmosfer aynı zamanda Güneş’ten gelen zararlı ışınımın bir kısmını süzer ve küçük uzay parçacıklarının birçoğu yüzeye ulaşmadan yanar. Bununla birlikte atmosfer sınırsız bir kalkan değildir; hava kirliliği, ozon tabakasındaki değişimler ve sera gazlarının artışı farklı çevresel sorunlar yaratabilir.", "Atmosferi anlamak, hava durumu ile iklimi birbirine karıştırmamayı da gerektirir. Hava durumu kısa zaman aralıklarındaki koşulları anlatır; iklim ise uzun süre boyunca gözlenen örüntülerdir. Tek bir soğuk gün, küresel ısınmayı çürütmez; tıpkı tek bir sıcak günün tek başına iklim değişikliğini kanıtlamaması gibi. Bilim, uzun dönemli ölçümleri birlikte değerlendirir."], "takeaway": "Atmosfer yaşamı destekler, enerjiyi dağıtır ve doğal sera etkisiyle Dünya’yı ısıtır. Hava durumu kısa vadeli, iklim ise uzun dönemli örüntülerdir.", "sources": [["NASA — Earth's Atmosphere", "https://science.nasa.gov/earth/facts/"], ["NASA — The Causes of Climate Change", "https://science.nasa.gov/climate-change/causes/"]]}, {"title": "Ötegezegenler: Başka yıldızların çevresindeki dünyalar", "topic": "Ötegezegenler ve yaşam arayışı", "body": ["Güneş Sistemi’ndeki gezegenleri gökyüzünde doğrudan gözlemlemek mümkün olsa da başka yıldızların çevresindeki gezegenleri bulmak çok daha zordur. Bu gezegenlere ötegezegen denir. Yıldızları genellikle gezegenlerinden çok daha parlak olduğundan, ötegezegenleri sönük bir ışık noktasını doğrudan görmek yerine yıldızlarında oluşturdukları küçük etkilerden saptarız.", "Yaygın yöntemlerden biri geçiş yöntemidir. Bir gezegen, Dünya’dan baktığımız doğrultuda yıldızının önünden geçerse yıldızın parlaklığı çok az düşer. Bu düşüş düzenli aralıklarla tekrarlanırsa, yıldızın çevresinde bir gezegen dolaşıyor olabileceğine dair kanıt elde edilir. Parlaklık düşüşünün miktarı gezegenin yıldızın önünde kapladığı alanla ilişkilidir; geçişin zamanlaması ise yörünge süresi hakkında bilgi verir.", "Başka bir yöntem, gezegenin kütleçekiminin yıldızını hafifçe sallamasını ölçer. Yıldız bize yaklaşırken veya uzaklaşırken ışığının tayfında küçük bir Doppler kayması oluşur. Bu hareket ölçülerek görünmeyen bir gezegenin etkisi anlaşılabilir. Farklı yöntemler farklı türde gezegenleri daha kolay bulur; bu yüzden keşfedilen gezegenler tüm gezegenlerin tarafsız bir örneği değildir.", "Bir gezegenin yıldızından aldığı enerji, yüzey koşullarını etkileyen unsurlardan yalnızca biridir. Atmosferin bileşimi, bulutlar, gezegenin dönüşü ve jeolojik süreçler de önemlidir. “Yaşanabilir bölge” terimi genellikle yüzeyde uygun koşullarda sıvı su bulunmasına izin verebilecek yıldız uzaklıklarını tarif eder. Bu bölgede bulunmak, gezegende yaşam olduğu anlamına gelmez.", "Yaşam arayışında bilim insanları atmosferdeki gazları ve gezegenlerin fiziksel özelliklerini incelemeye çalışır. Ancak tek bir gazı bulmak çoğu zaman yeterli değildir; gazın jeolojik veya kimyasal süreçlerle de oluşup oluşamayacağı araştırılmalıdır. Güçlü bir sonuç için birden fazla kanıtın tutarlı olması gerekir.", "Ötegezegen araştırmaları, Dünya’nın evrendeki yerini anlamamıza yardım eder. Şimdilik yaşamın Dünya dışında var olduğuna dair doğrulanmış bir kanıtımız yok. Ama gezegenlerin ne kadar çeşitli olabildiğini öğrenmek, doğru soruları sormak için elimizdeki örnekleri çoğaltıyor."], "takeaway": "Ötegezegenler çoğunlukla yıldız ışığındaki küçük değişimler veya yıldızın hareketi ölçülerek keşfedilir. Yaşanabilir bölgede bulunmak, yaşamın varlığını kanıtlamaz.", "sources": [["NASA — Exoplanets", "https://science.nasa.gov/exoplanets/"], ["NASA — The Search for Life in the Universe", "https://science.nasa.gov/universe/search-for-life/"]]}];
 const TOPICS={
-"Bilim ve evren":["Kara deliklerin gizemi","Mars’ta yaşam arayışı","Uyku hafızayı nasıl etkiler?","Okyanusun keşfedilmemiş derinlikleri","Zamanı nasıl ölçüyoruz?","Beyin yeni şeyleri nasıl öğrenir?","Kuantum dünyasına giriş","Yıldızlar nasıl doğar?","İnsan vücudunun biyolojik saati","Yapay zekâ nasıl öğrenir?"],
+"Bilim ve evren":ARTICLES.map(a=>a.topic),
 "Tarih ve uygarlıklar":["Antik Roma’da gündelik hayat","İpek Yolu’nun dünyayı değiştirmesi","Matbaanın bilgiye etkisi","İskenderiye Kütüphanesi","Samurayların yaşamı","Osmanlı’da şehir hayatı","Mısır piramitlerinin inşası","Keşifler çağının sonuçları","Tarihin akışını değiştiren icatlar","Antik Yunan’da eğitim"],
 "Felsefe ve düşünme":["Stoacılık ve kontrol alanımız","Bir fikri nasıl sorgularız?","Bilişsel önyargılar","Belirsizlikle yaşamak","Mutluluk nedir?","Platon’un mağara alegorisi","Şüphe etmek neden önemlidir?","Kararlarımız ne kadar özgür?","Düşünce deneyleri","Bilgelik ile bilgi arasındaki fark"],
 "Strateji ve kişisel disiplin":["Sun Tzu ve Savaş Sanatı","Küçük alışkanlıkların gücü","Hazırlık ve sabır","Geri çekilmenin stratejisi","Odaklanmayı korumak","Risk ve ödül dengesi","Uzun vadeli düşünmek","Plan yapmak ve uyum sağlamak","Duygularla karar vermemek","Disiplin ile motivasyon"],
@@ -428,6 +451,84 @@ const TOPICS={
 "İnsanlık ve toplum":["Şehirler nasıl şekillenir?","Diller neden değişir?","Para tarih boyunca nasıl evrildi?","Topluluklar nasıl iş birliği yapar?","Gelenekler nereden gelir?","Bilginin yayılma biçimleri","Göçlerin kültürlere etkisi","Hukukun toplumdaki rolü","Kuşaklar arası farklılıklar","Teknoloji gündelik hayatı nasıl değiştirdi?"],
 "Kısa hikâyeler":["Bir kararın bedeli","İstasyondaki yabancı","Küçük bir iyilik","Son ışık","Kayıp anahtar","Sessiz kütüphane","Dağın öteki yanı","Bir fincan çay","Son mektup","Beklenmedik karşılaşma"]
 };
+
+// Tüm temaların içerikleri uygulamanın içinde yer alır. Bilim metinleri kaynaklıdır;
+// diğer temalar kavramsal girişlerdir ve doğrulanmamış tarihsel ayrıntılar ileri sürmez.
+const THEME_GUIDES = {
+"Tarih ve uygarlıklar": {
+intro:"Tarih, geçmişi yalnızca hükümdarlar ve savaşlar üzerinden değil; insanların nasıl yaşadığı, çalıştığı, ticaret yaptığı ve bilgi aktardığı üzerinden de anlamaya çalışır.",
+lens:"Tarihsel bir konuyu incelerken dönemin koşullarını, eldeki kanıtları ve farklı kaynakların bakış açılarını birlikte değerlendirmek gerekir. Tek bir anlatı, geçmişin tamamını temsil etmeyebilir.",
+practice:"Bir olayın nedenlerini araştırırken tek bir kahramana ya da tek bir nedene bağlanmak yerine coğrafya, ekonomi, kurumlar, teknoloji ve sıradan insanların deneyimlerini birlikte düşün. Benzer görünen iki toplumun farklı koşullarda farklı kararlar alabileceğini de unutma.",
+source:["Encyclopaedia Britannica","https://www.britannica.com/"]
+},
+"Felsefe ve düşünme": {
+intro:"Felsefe, hazır cevapları ezberlemekten çok kavramları açıklığa kavuşturma ve gerekçeleri sınama pratiğidir. İyi bir soru, çoğu zaman düşüncenin yönünü değiştirir.",
+lens:"Bir iddiayı değerlendirirken ne söylendiğini, hangi varsayımlara dayandığını ve hangi kanıtların onu destekleyebileceğini ayır. Karşı görüşü en güçlü hâliyle anlamaya çalışmak, kendi görüşünü de daha sağlam kurmana yardım eder.",
+practice:"Bir düşünceyi hemen doğru ya da yanlış ilan etmek yerine şu üç soruyu sor: Tam olarak ne iddia ediliyor? Hangi gerekçe bunu destekliyor? Hangi yeni bilgi fikrimi değiştirebilir? Bu yaklaşım kesinlik sağlamaz; ama daha dikkatli düşünmeye yardımcı olur.",
+source:["Stanford Encyclopedia of Philosophy","https://plato.stanford.edu/"]
+},
+"Strateji ve kişisel disiplin": {
+intro:"Strateji, yalnızca bir hedef belirlemek değil; sınırlı zaman ve kaynaklarla hangi adımların hedefe hizmet ettiğini seçmektir. İyi planlar, gerçeklikle karşılaşınca güncellenebilir.",
+lens:"Bir hedefi küçük ve gözlenebilir davranışlara çevirmek, ilerlemeyi değerlendirmeyi kolaylaştırır. Planın işe yarayıp yaramadığını ölçmek için sonuç kadar süreçte ne öğrendiğine de bak.",
+practice:"Bir sonraki adımı belirlerken hedefi, elindeki kaynakları, olası engelleri ve vazgeçebileceğin işleri yaz. Planı değişmez bir sözleşme gibi değil, geri bildirimle iyileştirilen bir araç gibi kullan. Disiplin, her gün kusursuz olmak değil; koptuğunda yeniden başlayabilmektir.",
+source:["The Art of War — Project Gutenberg","https://www.gutenberg.org/"]
+},
+"Görgü ve iletişim": {
+intro:"İletişim, yalnızca doğru kelimeleri seçmekten ibaret değildir. Dinlemek, bağlamı anlamak, sınırları açıkça ifade etmek ve karşı tarafın ne anladığını kontrol etmek de iletişimin parçasıdır.",
+lens:"Bir konuşmada niyet ile etki birbirinden farklı olabilir. İyi niyet, karşı tarafın yaşadığı etkiyi otomatik olarak ortadan kaldırmaz; aynı şekilde bir yanlış anlaşılma da her zaman kötü niyet anlamına gelmez.",
+practice:"Zor bir konuda önce gözlemlediğin şeyi yargı katmadan anlat, ardından bunun sende yarattığı etkiyi ve ihtiyacını belirt. Karşı tarafın bakışını kendi cümlelerinle özetleyip doğru anlayıp anlamadığını sor. Bu yöntem her anlaşmazlığı çözmez, ama varsayımları görünür kılabilir.",
+source:["Greater Good Science Center — UC Berkeley","https://greatergood.berkeley.edu/"]
+},
+"Sanat ve yaratıcılık": {
+intro:"Sanat, dünyayı yalnızca olduğu gibi kaydetmek değil, ona hangi ayrıntılardan ve hangi bakış açısından yaklaşacağımızı da seçmektir. İzleyicinin deneyimi, eserin anlamının oluşmasına katkıda bulunur.",
+lens:"Bir eseri incelerken konu kadar biçime de dikkat et: ışık, ritim, boşluk, renk, malzeme, kadraj ve tekrar ne yapıyor? İlk yorumunu tek mümkün açıklama sayma; esere yeniden bakınca yeni ayrıntılar fark edebilirsin.",
+practice:"Bir fotoğraf, resim ya da müzik seç. Önce yalnızca gözlemlediğin veya duyduğun unsurları tarif et; sonra sende uyandırdığı çağrışımları ayır. Gözlemle yorumu birbirinden ayırmak, hem daha dikkatli bakmayı hem de farklı yorumlara açık olmayı sağlar.",
+source:["The Metropolitan Museum of Art — Heilbrunn Timeline","https://www.metmuseum.org/toah/"]
+},
+"Günlük hayat ve psikoloji": {
+intro:"Psikoloji, insanların nasıl düşündüğünü, hissettiğini ve davrandığını farklı yöntemlerle inceleyen bilim alanıdır. Gündelik deneyimlerimiz önemlidir; ancak tek bir deneyim, herkes için geçerli bir kural oluşturmaz.",
+lens:"Dikkat, alışkanlıklar ve kararlar çevreden, uykudan, duygulardan ve içinde bulunulan koşullardan etkilenebilir. Kendini anlamaya çalışırken tek bir etikete bağlanmak yerine davranışın hangi koşullarda ortaya çıktığını gözlemlemek daha yararlıdır.",
+practice:"Bir alışkanlığı değiştirmek istiyorsan yalnızca iradeye güvenmek yerine tetikleyiciyi, davranışı ve sonrasındaki sonucu fark et. Küçük bir çevre düzenlemesi veya daha kolay bir başlangıç adımı işe yarayabilir. Bu öneriler genel eğitim amaçlıdır; yoğun ya da uzun süren sıkıntılar için kişisel değerlendirme gerekebilir.",
+source:["American Psychological Association","https://www.apa.org/"]
+},
+"Doğa ve yaşam": {
+intro:"Doğadaki canlılar tek başlarına değil, çevreleri ve diğer canlılarla ilişkileri içinde yaşar. Ekosistemleri anlamak, tek bir türü incelemenin yanında enerji akışını, madde döngülerini ve karşılıklı bağımlılıkları da düşünmeyi gerektirir.",
+lens:"Doğal sistemlerde gözlenen bir ilişki, tek başına neden-sonuç kanıtı değildir. Mevsim, iklim, habitat, besin kaynakları ve insan etkisi aynı anda rol oynayabilir. Bilim insanları bu etkenleri gözlem, ölçüm ve karşılaştırmalarla ayırmaya çalışır.",
+practice:"Bir canlıyı veya doğal olayı incelerken üç soru sor: Hangi koşullarda görülüyor? Hangi kaynaklara ihtiyaç duyuyor? Çevresindeki değişimler onu nasıl etkileyebilir? Doğayı korumak için de yalnızca tek bir türü değil, onu destekleyen yaşam alanını ve ekolojik ilişkileri dikkate almak gerekir.",
+source:["National Geographic Education","https://education.nationalgeographic.org/"]
+},
+"İnsanlık ve toplum": {
+intro:"Toplumlar; kurumlar, kurallar, ortak anlamlar, ekonomik ilişkiler ve gündelik etkileşimlerle şekillenir. İnsan davranışını yalnızca bireysel tercihlerle açıklamak, içinde bulunulan koşulları gözden kaçırabilir.",
+lens:"Bir toplumsal olayı değerlendirirken kimin deneyiminin anlatıldığını, hangi verilerin kullanıldığını ve hangi grupların görünmez kaldığını sor. Ortalama değerler, bir toplumdaki herkesin aynı koşulları yaşadığı anlamına gelmez.",
+practice:"Bir iddiayı okuduğunda örnek ile genel eğilimi ayır. Tek bir hikâye önemli olabilir, fakat daha geniş bir sonuca varmak için farklı kaynaklara ve temsil gücü olan verilere ihtiyaç vardır. Farklı açıklamaları karşılaştırmak, karmaşık meseleleri basitleştirmeden anlamaya yardımcı olur.",
+source:["Our World in Data","https://ourworldindata.org/"]
+},
+"Kısa hikâyeler": {
+intro:"Kısa hikâye, sınırlı bir alanda karakter, seçim ve sonuç arasında anlamlı bir bağ kurmaya çalışır. Her ayrıntının açıklanması gerekmez; bazen bir davranış veya küçük bir nesne, karakterin durumunu anlatmaya yeter.",
+lens:"Bir hikâyeyi okurken yalnızca ne olduğuna değil, karakterin ne istediğine, neyi göze aldığına ve neyi fark edemediğine de bak. Anlatıcının verdiği bilgi ile karakterin bildikleri aynı olmayabilir.",
+practice:"Bir öykünün sonunda şu soruları düşün: Karakter hangi seçimle karşılaştı? Başta neye inanıyordu, sonunda ne değişti? Metnin açıkça söylemediği ama ima ettiği ne olabilir? Birden fazla yorum mümkünse, her yorumun metindeki hangi ayrıntılara dayandığını göster.",
+source:["Project Gutenberg — Short Stories","https://www.gutenberg.org/"]
+}
+};
+for (const [theme, topics] of Object.entries(TOPICS)) {
+  if (theme === "Bilim ve evren") continue;
+  const guide = THEME_GUIDES[theme];
+  for (const topic of topics) {
+    if (ARTICLES.some(a => a.topic === topic)) continue;
+    ARTICLES.push({
+      title: topic,
+      topic,
+      body: [
+        `${guide.intro} “${topic}” başlığına bu çerçeveden bakmak, konuyu tek bir cümleye indirgemeden anlamaya yardımcı olur.`,
+        `${guide.lens} Bu başlıkta önemli olan, konuya dair iddiaları kanıtlardan, yorumları da varsayımlardan ayırabilmektir. Eldeki bilgi eksik olduğunda bunu açıkça kabul etmek, zayıflık değil düşünsel titizliktir.`,
+        `${guide.practice} Okuma sırasında kendi örneğini düşün; fakat kişisel deneyimini evrensel bir kural olarak görme. Bu metni bitirince aklında kalan bir fikir seç ve onu bir cümleyle kendi sözlerinle ifade et.`
+      ],
+      takeaway: `${topic}: iddiaları, dayanaklarını ve kendi yorumunu birbirinden ayır; yeni kanıt geldiğinde fikrini gözden geçirmeye açık ol.`,
+      sources: [[guide.source[0], guide.source[1]]]
+    });
+  }
+}
+
 let data={reading:[],silence:[]};
 try{data=JSON.parse(localStorage.getItem('shugyo-v1'))||data}catch(e){}
 function save(){localStorage.setItem('shugyo-v1',JSON.stringify(data));renderAll()}
@@ -441,46 +542,131 @@ $('saveChallenge').addEventListener('click',()=>{
  settings={...settings,days,start};saveSettings();alert('Challenge ayarları kaydedildi.');
 });
 $('themeMode').addEventListener('change',()=>{settings.theme=$('themeMode').value;saveSettings()});
+
 let selectedReadingTitle='';
 let selectedReadingDuration=5;
+let currentArticle=null;
 function updateReadingChoices(){
- const theme=$('themeSelect').value, topic=$('topicSelect').value||((TOPICS[theme]||[])[0]||'');
- const suffix=selectedReadingDuration===5?'5 dakika':'10 dakika';
- const titles=[`${topic} — I`,`${topic} — II`];
- titles.forEach((title,i)=>{$('choiceTitle'+i).textContent=title;$('choiceMeta'+i).textContent=suffix+' · '+(theme==='Bilim ve evren'?'Bilim':theme)});
+ const theme=$('themeSelect').value;
+ const topic=$('topicSelect').value||((TOPICS[theme]||[])[0]||'');
+ const matching=ARTICLES.filter(a=>a.topic===topic);
+ const list=matching.length?matching:[{title:topic+' — I',topic},{title:topic+' — II',topic}];
+ [0,1].forEach(i=>{
+   const item=list[i]||list[0];
+   $('choiceTitle'+i).textContent=i===0?item.title:'Özet';
+   $('choiceMeta'+i).textContent=i===0?'5 dakika · '+theme:'Özet ve kaynaklar';
+ });
  document.querySelectorAll('.reading-choice').forEach((b,i)=>b.classList.toggle('selected',b.dataset.reading===selectedReadingTitle));
 }
 function syncReadingTheme(theme){
  $('themeSelect').value=theme;
  document.querySelectorAll('.theme-tile').forEach(b=>b.classList.toggle('selected',b.dataset.theme===theme));
  const opts=TOPICS[theme]||[];
- $('topicSelect').innerHTML=opts.map(x=>`<option>${x}</option>`).join('');
+ $('topicSelect').innerHTML=opts.map(x=>`<option>${esc(x)}</option>`).join('');
  updateReadingChoices();
 }
 document.querySelectorAll('.theme-tile').forEach(b=>b.addEventListener('click',()=>syncReadingTheme(b.dataset.theme)));
 $('themeSelect').addEventListener('change',()=>syncReadingTheme($('themeSelect').value));
 document.querySelectorAll('.length-choice').forEach(b=>b.addEventListener('click',()=>{
  document.querySelectorAll('.length-choice').forEach(x=>x.classList.toggle('selected',x===b));
- selectedReadingDuration=Number(b.dataset.length)||5;
- $('readMinutes').value=selectedReadingDuration;
+ selectedReadingDuration=5;
+ $('readMinutes').value=5;
  updateReadingChoices();
 }));
-document.querySelectorAll('.reading-choice').forEach(b=>b.addEventListener('click',()=>{
- selectedReadingTitle=$('choiceTitle'+b.dataset.reading).textContent;
- document.querySelectorAll('.reading-choice').forEach(x=>x.classList.toggle('selected',x===b));
-}));
-$('topicSelect').addEventListener('change',updateReadingChoices);
+$('topicSelect').addEventListener('change',()=>{selectedReadingTitle='';updateReadingChoices()});
+function openArticle(index){
+ const theme=$('themeSelect').value,topic=$('topicSelect').value;
+ const matches=ARTICLES.filter(a=>a.topic===topic);
+ currentArticle=matches.length?matches[index%matches.length]:null;
+ if(!currentArticle){
+   alert('Bu konu için metin bulunamadı. Lütfen başka bir konu seç.');
+   return;
+ }
+ selectedReadingTitle=currentArticle.title;
+ $('articleCategory').textContent=theme.toLocaleUpperCase('tr-TR');
+ $('articleTitle').textContent=currentArticle.title;
+ $('articleBody').innerHTML=index===0?currentArticle.body.map(p=>`<p>${esc(p)}</p>`).join(''):`<p>${esc(currentArticle.takeaway)}</p>`;
+ $('articleTakeaway').textContent=currentArticle.takeaway;
+ $('articleSources').innerHTML=currentArticle.sources.map(s=>`<a href="${s[1]}" target="_blank" rel="noopener noreferrer">${esc(s[0])} ↗</a>`).join('');
+ $('readingChoices').hidden=true;
+ $('articleReader').hidden=false;
+ $('read-log').hidden=true;
+ $('articleReader').scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.querySelectorAll('.reading-choice').forEach(b=>b.addEventListener('click',()=>openArticle(Number(b.dataset.reading))));
+$('closeArticle').addEventListener('click',()=>{
+ $('articleReader').hidden=true;$('readingChoices').hidden=false;$('read-log').hidden=false;currentArticle=null;
+});
+$('completeArticle').addEventListener('click',()=>{
+ if(!currentArticle)return;
+ data.reading.push({date:todayKey(),minutes:5,topic:currentArticle.title,theme:$('themeSelect').value,length:5,completed:true});
+ save();
+ $('articleReader').hidden=true;$('readingChoices').hidden=false;$('read-log').hidden=false;
+ currentArticle=null;alert('Okuma tamamlandı ve ilerlemen kaydedildi.');
+});
+$('saveReading').addEventListener('click',()=>{
+ alert('Okuma kaydı için bir metin açıp “Okumayı bitirdim · Kaydet” düğmesine dokun.');
+});
 syncReadingTheme('Bilim ve evren');
-$('saveReading').addEventListener('click',()=>{const mins=Math.floor(Number($('readMinutes').value));if(!Number.isFinite(mins)||mins<1||mins>600){alert('Lütfen 1–600 arasında bir dakika gir.');return}const topic=selectedReadingTitle||$('topicSelect').value||'Serbest okuma';data.reading.push({date:todayKey(),minutes:mins,topic,theme:$('themeSelect').value||'Seçilmedi',length:selectedReadingDuration});save();alert('Okuma kaydedildi.')});
+
 let running=false,paused=false,remaining=300,total=300,lastTick=0,raf=null;
-function setDuration(){const m=Math.min(180,Math.max(1,Math.floor(Number($('silenceDuration').value)||5)));$('silenceDuration').value=m;if(!running){total=remaining=m*60;updateTimer()}}
-function updateTimer(){const m=Math.floor(remaining/60),s=Math.floor(remaining%60);$('timerDisplay').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;$('timerProgress').style.width=`${total?100*(total-remaining)/total:0}%`}
-function tick(now){if(!running)return;if(!lastTick)lastTick=now;const delta=(now-lastTick)/1000;lastTick=now;remaining=Math.max(0,remaining-delta);updateTimer();if(remaining<=0){running=false;paused=false;$('timerStatus').textContent='Süre doldu. Seansı kaydedebilirsin.';$('startTimer').disabled=true;$('pauseTimer').disabled=true;$('finishSilence').disabled=false;return}raf=requestAnimationFrame(tick)}
+function setDuration(){
+ const m=Math.min(180,Math.max(1,Math.floor(Number($('silenceDuration').value)||5)));
+ $('silenceDuration').value=m;
+ if(!running){total=remaining=m*60;updateTimer()}
+}
+function updateTimer(){
+ const m=Math.floor(remaining/60),s=Math.floor(remaining%60);
+ $('timerDisplay').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+ $('timerProgress').style.width=`${total?100*(total-remaining)/total:0}%`;
+}
+function tick(now){
+ if(!running)return;
+ if(!lastTick)lastTick=now;
+ const delta=(now-lastTick)/1000;lastTick=now;
+ remaining=Math.max(0,remaining-delta);updateTimer();
+ if(remaining<=0){
+  running=false;paused=false;
+  $('timerStatus').textContent='Süre doldu.';
+  $('startTimer').disabled=true;$('pauseTimer').disabled=true;$('finishSilence').disabled=false;
+  return;
+ }
+ raf=requestAnimationFrame(tick);
+}
 $('silenceDuration').addEventListener('change',setDuration);
-$('startTimer').addEventListener('click',()=>{if(remaining<=0)setDuration();running=true;paused=false;lastTick=0;$('timerStatus').textContent='Sessizlik zamanı';$('startTimer').disabled=true;$('pauseTimer').disabled=false;$('finishSilence').disabled=false;raf=requestAnimationFrame(tick)});
-$('pauseTimer').addEventListener('click',()=>{if(running){running=false;paused=true;cancelAnimationFrame(raf);$('timerStatus').textContent='Duraklatıldı';$('startTimer').disabled=false;$('startTimer').textContent='Devam et';$('pauseTimer').disabled=true}else if(paused){running=true;paused=false;lastTick=0;$('timerStatus').textContent='Sessizlik zamanı';$('startTimer').disabled=true;$('pauseTimer').disabled=false;raf=requestAnimationFrame(tick)}});
-$('resetTimer').addEventListener('click',()=>{running=false;paused=false;cancelAnimationFrame(raf);$('startTimer').disabled=false;$('startTimer').textContent='Başlat';$('pauseTimer').disabled=true;$('finishSilence').disabled=true;$('timerStatus').textContent='Hazır olduğunda başlat.';setDuration()});
-$('finishSilence').addEventListener('click',()=>{const elapsed=Math.floor((total-remaining)/60);const mins=remaining<=0?Math.round(total/60):elapsed;if(mins<1){alert('En az 1 dakika tamamlayınca kaydedebilirsin.');return}data.silence.push({date:todayKey(),minutes:mins,status:remaining<=0?'Tamamlandı':'Erken bitirildi'});running=false;paused=false;cancelAnimationFrame(raf);$('startTimer').disabled=false;$('startTimer').textContent='Başlat';$('pauseTimer').disabled=true;$('finishSilence').disabled=true;$('timerStatus').textContent='Kaydedildi. Bir sonraki seansa hazır olduğunda yeniden başlat.';setDuration();save();showView('silenceView','silence');alert(`${mins} dakika sessizlik kaydedildi.`)});
+$('startTimer').addEventListener('click',()=>{
+ if(remaining<=0)setDuration();
+ running=true;paused=false;lastTick=0;
+ $('timerStatus').textContent='Sessizlik zamanı';
+ $('startTimer').disabled=true;$('startTimer').textContent='Başlat';
+ $('pauseTimer').disabled=false;$('finishSilence').disabled=false;
+ raf=requestAnimationFrame(tick);
+});
+$('pauseTimer').addEventListener('click',()=>{
+ if(!running)return;
+ running=false;paused=true;cancelAnimationFrame(raf);
+ $('timerStatus').textContent='Duraklatıldı';
+ $('startTimer').disabled=false;$('startTimer').textContent='Devam et';
+ $('pauseTimer').disabled=true;
+});
+$('resetTimer').addEventListener('click',()=>{
+ running=false;paused=false;cancelAnimationFrame(raf);
+ $('startTimer').disabled=false;$('startTimer').textContent='Başlat';
+ $('pauseTimer').disabled=true;$('finishSilence').disabled=true;
+ $('timerStatus').textContent='Hazır olduğunda başlat.';setDuration();
+});
+$('finishSilence').addEventListener('click',()=>{
+ running=false;paused=false;cancelAnimationFrame(raf);
+ const elapsed=Math.floor((total-remaining)/60);
+ const mins=remaining<=0?Math.round(total/60):elapsed;
+ if(mins<1){alert('En az 1 dakika tamamlayınca kaydedebilirsin.');return}
+ data.silence.push({date:todayKey(),minutes:mins,status:remaining<=0?'Tamamlandı':'Erken bitirildi'});
+ total=remaining=Math.max(1,Math.floor(Number($('silenceDuration').value)||5))*60;updateTimer();
+ $('startTimer').disabled=false;$('startTimer').textContent='Başlat';
+ $('pauseTimer').disabled=true;$('finishSilence').disabled=true;
+ $('timerStatus').textContent='Seans kaydedildi.';
+ setDuration();save();
+});
 function sum(arr){return arr.reduce((n,x)=>n+x.minutes,0)}
 function uniqueDays(arr){return new Set(arr.map(x=>x.date)).size}
 function rows(tableId,items,kind){const tb=$(tableId);if(!items.length){tb.innerHTML=`<tr><td colspan="3" class="empty">Henüz kayıt yok.</td></tr>`;return}tb.innerHTML=items.slice().reverse().map(x=>kind==='reading'?`<tr><td>${fmtDate(x.date)}</td><td>${esc(x.topic)}</td><td>${x.minutes} dk</td></tr>`:`<tr><td>${fmtDate(x.date)}</td><td>${x.minutes} dk</td><td>${esc(x.status||'Tamamlandı')}</td></tr>`).join('')}
