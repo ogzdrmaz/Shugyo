@@ -294,13 +294,7 @@ header .day-pill, header .settings-open { display:none !important; }
   <div class="reading-heading"><div><p class="eyebrow">GÜNLÜK KEŞİF</p><h2>Okuma</h2></div></div>
 
   <div class="reading-step">
-    <div class="step-label"><span>01</span> Süre</div>
-    <div class="length-options single-length">
-      <button class="length-choice selected" data-length="5" type="button"><strong>5 dakika</strong><span>Tek okuma</span></button>
-    </div>
-  </div>
-  <div class="reading-step">
-    <div class="step-label"><span>02</span> Tema</div>
+    <div class="step-label"><span>01</span> Tema</div>
     <div class="theme-rail" id="themeRail">
 <button class="theme-tile selected" data-theme="Bilim ve Evren" type="button"><span class="theme-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g><circle cx="12" cy="12" r="1.5"/><ellipse cx="12" cy="12" rx="9" ry="4.5"/><ellipse cx="12" cy="12" rx="9" ry="4.5" transform="rotate(60 12 12)"/></g></svg></span><b>Bilim</b></button>
 <button class="theme-tile" data-theme="Psikoloji ve İnsan Zihni" type="button"><span class="theme-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g><path d="M9 4.5A3 3 0 0 0 4.5 7a3.5 3.5 0 0 0 0 6.5A3 3 0 0 0 9 16.5V4.5Z"/><path d="M15 4.5A3 3 0 0 1 19.5 7a3.5 3.5 0 0 1 0 6.5 3 3 0 0 1-4.5 3V4.5Z"/><path d="M9 8H7m2 5H6m9-5h2m-2 5h3M12 4v16"/></g></svg></span><b>Psikoloji</b></button>
@@ -319,12 +313,12 @@ header .day-pill, header .settings-open { display:none !important; }
     <select id="themeSelect" class="visually-hidden" aria-label="Tema seç"><option>Bilim ve Evren</option><option>Psikoloji ve İnsan Zihni</option><option>Stoacılık</option><option>Felsefe ve Düşünme</option><option>Tarih ve Uygarlıklar</option><option>İnsan Vücudu ve Sağlık Bilimi</option><option>Teknoloji ve Gelecek</option><option>Doğa ve Dünya</option><option>Ekonomi ve Para</option><option>Strateji ve Kişisel Disiplin</option><option>Adabı Muaşeret</option><option>Genel Kültür</option><option>Pratik Bilgi ve Yaşam Becerileri</option></select>
   </div>
   <div class="reading-step topic-step">
-    <div class="step-label"><span>03</span> Konu</div>
+    <div class="step-label"><span>02</span> Konu</div>
     <select id="topicSelect" aria-label="Konu seç"></select>
   </div>
   <div class="section-title compact-section"><h3>Okuma seç</h3></div>
   <div class="reading-choices" id="readingChoices">
-    <button class="reading-choice" data-reading="0"><span class="choice-index">01</span><span class="choice-copy"><b id="choiceTitle0">Birinci okuma</b><small id="choiceMeta0">5 dakika · Bilim</small></span><span class="choice-arrow">↗</span></button>
+    <button class="reading-choice" data-reading="0"><span class="choice-index">01</span><span class="choice-copy"><b id="choiceTitle0">Birinci okuma</b><small id="choiceMeta0">Tam metin · Bilim</small></span><span class="choice-arrow">↗</span></button>
     <button class="reading-choice" data-reading="1"><span class="choice-index">02</span><span class="choice-copy"><b id="choiceTitle1">Özet</b><small id="choiceMeta1">Aklında kalsın</small></span><span class="choice-arrow">↗</span></button>
   </div>
   <article class="article-reader" id="articleReader" hidden>
@@ -337,7 +331,7 @@ header .day-pill, header .settings-open { display:none !important; }
     <button class="btn" id="completeArticle" style="width:100%;margin-top:16px">Okumayı bitirdim · Kaydet</button>
   </article>
   <div class="read-log" id="read-log" hidden>
-    <label for="readMinutes">Okuma süresi (dakika)</label><div class="log-inline"><input id="readMinutes" type="number" min="1" max="600" value="5" inputmode="numeric"><button class="btn" id="saveReading">Kaydet ↗</button></div>
+    <label for="readMinutes">Okuma süresi (dakika)</label><div class="log-inline"><input id="readMinutes" type="number" min="1" max="600" value="" placeholder="Dakika" inputmode="numeric"><button class="btn" id="saveReading">Kaydet ↗</button></div>
   </div>
   <div class="section-title compact-section"><h3>Son okumalar</h3></div>
   <div class="panel compact-table"><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Konu</th><th>Süre</th></tr></thead><tbody id="readingRows"></tbody></table></div></div>
@@ -458,7 +452,6 @@ $('saveChallenge').addEventListener('click',()=>{
 $('themeMode').addEventListener('change',()=>{settings.theme=$('themeMode').value;saveSettings()});
 
 let selectedReadingTitle='';
-let selectedReadingDuration=5;
 let currentArticle=null;
 function updateReadingChoices(){
  const theme=$('themeSelect').value;
@@ -468,7 +461,7 @@ function updateReadingChoices(){
  [0,1].forEach(i=>{
    const item=list[i]||list[0];
    $('choiceTitle'+i).textContent=i===0?item.title:'Kısa özet';
-   $('choiceMeta'+i).textContent=i===0?Math.max(1,Math.ceil((item.body||[]).join(' ').split(/\s+/).length/220))+' dk · '+theme:'Ana fikir ve kaynaklar';
+   $('choiceMeta'+i).textContent=i===0?'Tam metin · '+theme:'Ana fikir ve kaynaklar';
  });
  document.querySelectorAll('.reading-choice').forEach((b,i)=>b.classList.toggle('selected',b.dataset.reading===selectedReadingTitle));
 }
@@ -481,12 +474,6 @@ function syncReadingTheme(theme){
 }
 document.querySelectorAll('.theme-tile').forEach(b=>b.addEventListener('click',()=>syncReadingTheme(b.dataset.theme)));
 $('themeSelect').addEventListener('change',()=>syncReadingTheme($('themeSelect').value));
-document.querySelectorAll('.length-choice').forEach(b=>b.addEventListener('click',()=>{
- document.querySelectorAll('.length-choice').forEach(x=>x.classList.toggle('selected',x===b));
- selectedReadingDuration=5;
- $('readMinutes').value=5;
- updateReadingChoices();
-}));
 $('topicSelect').addEventListener('change',()=>{selectedReadingTitle='';updateReadingChoices()});
 function openArticle(index){
  const theme=$('themeSelect').value,topic=$('topicSelect').value;
@@ -513,7 +500,8 @@ $('closeArticle').addEventListener('click',()=>{
 });
 $('completeArticle').addEventListener('click',()=>{
  if(!currentArticle)return;
- data.reading.push({date:todayKey(),minutes:5,topic:currentArticle.title,theme:$('themeSelect').value,length:5,completed:true});
+ const actualMinutes=Math.max(1,Math.ceil(currentArticle.body.join(' ').split(/\s+/).length/220));
+ data.reading.push({date:todayKey(),minutes:actualMinutes,topic:currentArticle.title,theme:$('themeSelect').value,length:actualMinutes,completed:true});
  save();
  $('articleReader').hidden=true;$('readingChoices').hidden=false;$('read-log').hidden=false;
  currentArticle=null;alert('Okuma tamamlandı ve ilerlemen kaydedildi.');
