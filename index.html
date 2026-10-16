@@ -216,6 +216,28 @@ header .day-pill, header .settings-open { display:none !important; }
 .simple-duration input { width:88px; padding:10px 8px; text-align:center; }
 #homeView .home-intro { padding-top:24px; }
 
+
+.progress-disclosure{margin-top:16px;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.progress-disclosure summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:17px 18px;cursor:pointer;color:var(--text);font:14px ui-sans-serif,-apple-system,sans-serif}
+.progress-disclosure summary::-webkit-details-marker{display:none}
+.disclosure-chevron{color:var(--muted);font-size:18px;transition:transform .2s}
+.progress-disclosure[open] .disclosure-chevron{transform:rotate(45deg)}
+.progress-content{padding:0 14px 15px;border-top:1px solid var(--line)}
+.progress-stats{margin-top:14px}
+.silence-chart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;align-items:end;min-height:116px;padding:10px 0 5px}
+.chart-day{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100px;min-width:0}
+.chart-value{font:10px ui-sans-serif,-apple-system,sans-serif;color:var(--muted)}
+.chart-track{height:65px;width:100%;max-width:26px;display:flex;align-items:flex-end;background:var(--panel2);border-radius:8px;overflow:hidden}
+.chart-bar{width:100%;min-height:2px;background:var(--accent);border-radius:8px}
+.chart-label{font:9px ui-sans-serif,-apple-system,sans-serif;color:var(--muted)}
+.reading-choice{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:8px;color:var(--text)}
+.reading-choice.selected{border-color:var(--accent);background:var(--panel2)}
+.choice-index{font:12px ui-sans-serif,-apple-system,sans-serif;color:var(--accent);border-right:1px solid var(--line);padding-right:12px}
+.choice-copy{display:flex;flex:1;flex-direction:column;gap:5px}
+.choice-copy b{font:14px ui-serif,Georgia,serif;font-weight:500}
+.choice-copy small{font:10px ui-sans-serif,-apple-system,sans-serif;color:var(--muted)}
+.choice-arrow{font-size:18px;color:var(--muted)}
+
 </style>
 </head>
 <body>
@@ -238,12 +260,12 @@ header .day-pill, header .settings-open { display:none !important; }
       <tbody>
         <tr>
           <td colspan="2"><span class="practice-icon">⌕</span>Okuma</td>
-          <td><span class="status" id="todayReadStatus">Henüz değil</span></td>
+          <td><span class="status" id="todayReadStatus">Başlanmadı</span></td>
           <td><button class="open-practice" aria-label="Okumayı aç" onclick="showView('readingView','reading')">↗</button></td>
         </tr>
         <tr>
           <td colspan="2"><span class="practice-icon">◯</span>Sessizlik</td>
-          <td><span class="status" id="todaySilenceStatus">Henüz değil</span></td>
+          <td><span class="status" id="todaySilenceStatus">Başlanmadı</span></td>
           <td><button class="open-practice" aria-label="Sessizliği aç" onclick="showView('silenceView','silence')">↗</button></td>
         </tr>
       </tbody>
@@ -253,10 +275,17 @@ header .day-pill, header .settings-open { display:none !important; }
 
 <section class="view" id="readingView">
   <button class="back" onclick="showView('homeView','home')">← Ana sayfa</button>
-  <div class="reading-heading"><div><p class="eyebrow">GÜNLÜK KEŞİF</p><h2>Okuma</h2></div><span class="reading-mark">01 / 02</span></div>
-  
+  <div class="reading-heading"><div><p class="eyebrow">GÜNLÜK KEŞİF</p><h2>Okuma</h2></div></div>
+
   <div class="reading-step">
-    <div class="step-label"><span>01</span> Tema</div>
+    <div class="step-label"><span>01</span> Süre</div>
+    <div class="length-options">
+      <button class="length-choice selected" data-length="5"><strong>5 dakika</strong><span>Kısa okuma</span></button>
+      <button class="length-choice" data-length="10"><strong>10 dakika</strong><span>Derin okuma</span></button>
+    </div>
+  </div>
+  <div class="reading-step">
+    <div class="step-label"><span>02</span> Tema</div>
     <div class="theme-rail" id="themeRail">
       <button class="theme-tile selected" data-theme="Bilim ve evren"><span>✧</span><b>Bilim</b></button>
       <button class="theme-tile" data-theme="Tarih ve uygarlıklar"><span>⌂</span><b>Tarih</b></button>
@@ -265,37 +294,33 @@ header .day-pill, header .settings-open { display:none !important; }
       <button class="theme-tile" data-theme="Görgü ve iletişim"><span>◇</span><b>İletişim</b></button>
       <button class="theme-tile" data-theme="Sanat ve yaratıcılık"><span>▧</span><b>Sanat</b></button>
       <button class="theme-tile" data-theme="Günlük hayat ve psikoloji"><span>☼</span><b>Psikoloji</b></button>
+      <button class="theme-tile" data-theme="Doğa ve yaşam"><span>❋</span><b>Doğa</b></button>
+      <button class="theme-tile" data-theme="İnsanlık ve toplum"><span>◎</span><b>Toplum</b></button>
       <button class="theme-tile" data-theme="Kısa hikâyeler"><span>❧</span><b>Hikâye</b></button>
     </div>
     <select id="themeSelect" class="visually-hidden" aria-label="Tema seç">
-      <option>Bilim ve evren</option><option>Tarih ve uygarlıklar</option><option>Felsefe ve düşünme</option><option>Strateji ve kişisel disiplin</option><option>Görgü ve iletişim</option><option>Sanat ve yaratıcılık</option><option>Günlük hayat ve psikoloji</option><option>Kısa hikâyeler</option>
+      <option>Bilim ve evren</option><option>Tarih ve uygarlıklar</option><option>Felsefe ve düşünme</option><option>Strateji ve kişisel disiplin</option><option>Görgü ve iletişim</option><option>Sanat ve yaratıcılık</option><option>Günlük hayat ve psikoloji</option><option>Doğa ve yaşam</option><option>İnsanlık ve toplum</option><option>Kısa hikâyeler</option>
     </select>
   </div>
   <div class="reading-step topic-step">
-    <div class="step-label"><span>02</span> Konu</div>
+    <div class="step-label"><span>03</span> Konu</div>
     <select id="topicSelect" aria-label="Konu seç"></select>
   </div>
-  <div class="reading-step">
-    <div class="step-label"><span>03</span> Süre</div>
-    <div class="length-options">
-      <button class="length-choice selected" data-length="short"><strong>Kısa</strong><span>≈ 2 dk</span></button>
-      <button class="length-choice" data-length="long"><strong>Uzun</strong><span>≈ 4 dk</span></button>
-    </div>
-    <select id="lengthSelect" class="visually-hidden" aria-label="Okuma uzunluğu"><option value="short">Kısa</option><option value="long">Uzun</option></select>
-  </div>
-  <div class="reading-preview" id="readingPlaceholder" aria-live="polite"></div>
+  <div class="section-title compact-section"><h3>Okuma seç</h3></div>
+  <div class="reading-choices" id="readingChoices">
+    <button class="reading-choice" data-reading="0"><span class="choice-index">01</span><span class="choice-copy"><b id="choiceTitle0">Birinci okuma</b><small id="choiceMeta0">5 dakika · Bilim</small></span><span class="choice-arrow">↗</span></button>
+    <button class="reading-choice" data-reading="1"><span class="choice-index">02</span><span class="choice-copy"><b id="choiceTitle1">İkinci okuma</b><small id="choiceMeta1">5 dakika · Bilim</small></span><span class="choice-arrow">↗</span></button>
   </div>
   <div class="read-log">
-    <label for="readMinutes">Okuma süren (dakika)</label><div class="log-inline"><input id="readMinutes" type="number" min="1" max="600" value="5" inputmode="numeric"><button class="btn" id="saveReading">Kaydet ↗</button></div>
+    <label for="readMinutes">Okuma süresi (dakika)</label><div class="log-inline"><input id="readMinutes" type="number" min="1" max="600" value="5" inputmode="numeric"><button class="btn" id="saveReading">Kaydet ↗</button></div>
   </div>
-  <div class="section-title compact-section"><h3>Son okumalar</h3><span class="hint">Kayıtların</span></div>
+  <div class="section-title compact-section"><h3>Son okumalar</h3></div>
   <div class="panel compact-table"><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Konu</th><th>Süre</th></tr></thead><tbody id="readingRows"></tbody></table></div></div>
 </section>
 
 <section class="view" id="silenceView">
   <button class="back" onclick="showView('homeView','home')">← Ana sayfa</button>
   <p class="eyebrow">BÖLÜM 02</p><h2>Sessizlik</h2>
-  
   <div class="panel">
     <div class="field simple-duration"><label for="silenceDuration">Süre (dakika)</label>
       <input id="silenceDuration" type="number" min="1" max="180" value="5" inputmode="numeric">
@@ -311,14 +336,20 @@ header .day-pill, header .settings-open { display:none !important; }
       <div class="progress"><div class="progress-bar" id="timerProgress"></div></div>
     </div>
     <button class="btn" id="finishSilence" style="width:100%;margin-top:12px" disabled>Seansı bitir ve kaydet</button>
-    <p class="notice">Sayaç açıkken sayfayı kapatırsan seans kesilebilir. Kayıtlar bu cihazın tarayıcısında saklanır.</p>
   </div>
-  <div class="section-title"><h3>Sessizlik ilerlemesi</h3><span class="hint">Günlük kayıtlar</span></div>
-  <div class="panel"><div class="stats">
-    <div class="stat"><div class="num" id="silenceTotal">0</div><div class="label">Toplam dakika</div></div>
-    <div class="stat"><div class="num" id="silenceSessions">0</div><div class="label">Seans</div></div>
-    <div class="stat"><div class="num" id="silenceDays">0</div><div class="label">Gün</div></div>
-  </div><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Süre</th><th>Durum</th></tr></thead><tbody id="silenceRows"></tbody></table></div></div>
+  <details class="progress-disclosure" id="silenceProgressDetails">
+    <summary><span>İlerlemem</span><span class="disclosure-chevron">＋</span></summary>
+    <div class="progress-content">
+      <div class="stats progress-stats">
+        <div class="stat"><div class="num" id="silenceTotal">0</div><div class="label">Toplam dakika</div></div>
+        <div class="stat"><div class="num" id="silenceSessions">0</div><div class="label">Seans</div></div>
+        <div class="stat"><div class="num" id="silenceDays">0</div><div class="label">Gün</div></div>
+      </div>
+      <div class="section-title compact-section"><h3>Son 7 gün</h3></div>
+      <div class="silence-chart" id="silenceChart" aria-label="Son 7 günün sessizlik dakikaları"></div>
+      <div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Süre</th><th>Durum</th></tr></thead><tbody id="silenceRows"></tbody></table></div>
+    </div>
+  </details>
 </section>
 
 <section class="view" id="settingsView">
@@ -386,14 +417,16 @@ function renderChallenge(){
 
 const fmtDate=s=>{const [y,m,d]=s.split('-');return `${d}.${m}.${y}`};
 const TOPICS={
-"Bilim ve evren":["Uzay istasyonunda bir gün","Uyku ve hafıza","Okyanusların derinlikleri","Zamanı nasıl ölçüyoruz?"],
-"Tarih ve uygarlıklar":["Antik Roma’da günlük hayat","İpek Yolu","Matbaanın etkisi","Kütüphanelerin tarihi"],
-"Felsefe ve düşünme":["Stoacılık ve kontrol alanımız","Bir fikri nasıl sorgularız?","Bilişsel önyargılar","Belirsizlikle yaşamak"],
-"Strateji ve kişisel disiplin":["Sun Tzu ve Savaş Sanatı","Küçük alışkanlıkların gücü","Hazırlık ve sabır","Geri çekilmenin stratejisi"],
-"Görgü ve iletişim":["İyi bir dinleyici olmak","Zor konuşmaları yönetmek","Nezaket ve sınırlar","Anlaşmazlıkta soru sormak"],
-"Sanat ve yaratıcılık":["Edward Hopper ve sessizlik","Manzara çizerken gözlem","Yaratıcılıkta taslakların rolü","Sanata bakmayı öğrenmek"],
-"Günlük hayat ve psikoloji":["Dikkat nasıl dağılır?","Erteleme ve ilk adım","Dinlenmek ile kaçınmak","Dijital alışkanlıklar"],
-"Kısa hikâyeler":["Bir kararın bedeli","İstasyondaki yabancı","Küçük bir iyilik","Son ışık"]
+"Bilim ve evren":["Kara deliklerin gizemi","Mars’ta yaşam arayışı","Uyku hafızayı nasıl etkiler?","Okyanusun keşfedilmemiş derinlikleri","Zamanı nasıl ölçüyoruz?","Beyin yeni şeyleri nasıl öğrenir?","Kuantum dünyasına giriş","Yıldızlar nasıl doğar?","İnsan vücudunun biyolojik saati","Yapay zekâ nasıl öğrenir?"],
+"Tarih ve uygarlıklar":["Antik Roma’da gündelik hayat","İpek Yolu’nun dünyayı değiştirmesi","Matbaanın bilgiye etkisi","İskenderiye Kütüphanesi","Samurayların yaşamı","Osmanlı’da şehir hayatı","Mısır piramitlerinin inşası","Keşifler çağının sonuçları","Tarihin akışını değiştiren icatlar","Antik Yunan’da eğitim"],
+"Felsefe ve düşünme":["Stoacılık ve kontrol alanımız","Bir fikri nasıl sorgularız?","Bilişsel önyargılar","Belirsizlikle yaşamak","Mutluluk nedir?","Platon’un mağara alegorisi","Şüphe etmek neden önemlidir?","Kararlarımız ne kadar özgür?","Düşünce deneyleri","Bilgelik ile bilgi arasındaki fark"],
+"Strateji ve kişisel disiplin":["Sun Tzu ve Savaş Sanatı","Küçük alışkanlıkların gücü","Hazırlık ve sabır","Geri çekilmenin stratejisi","Odaklanmayı korumak","Risk ve ödül dengesi","Uzun vadeli düşünmek","Plan yapmak ve uyum sağlamak","Duygularla karar vermemek","Disiplin ile motivasyon"],
+"Görgü ve iletişim":["İyi bir dinleyici olmak","Zor konuşmaları yönetmek","Nezaket ve sınırlar","Anlaşmazlıkta doğru soru","İlk izlenimin etkisi","Beden dili ne anlatır?","Geri bildirim vermek","Empati kurmak","Sessizliğin iletişimdeki yeri","Güven nasıl inşa edilir?"],
+"Sanat ve yaratıcılık":["Edward Hopper ve sessizlik","Manzara çizerken gözlem","Taslakların yaratıcı süreçteki rolü","Sanata bakmayı öğrenmek","Japon estetiği: wabi-sabi","Müzik ve hafıza","Fotoğrafla hikâye anlatmak","Renklerin algıya etkisi","Yaratıcı tıkanıklığı aşmak","Mimari ve insan davranışı"],
+"Günlük hayat ve psikoloji":["Dikkat nasıl dağılır?","Erteleme ve ilk adım","Dinlenmek ile kaçınmak","Dijital alışkanlıklar","Alışkanlık döngüsü","Stres altında düşünmek","Duyguları adlandırmak","Karar yorgunluğu","Sosyal karşılaştırma","Uyku ve ruh hâli"],
+"Doğa ve yaşam":["Arıların iletişim sistemi","Ağaçlar ve orman ekosistemi","Göçmen kuşların yön bulması","Mercan resiflerinin yaşamı","Mantar ağları","Çöl canlılarının hayatta kalması","Mevsimler ve biyolojik ritim","Kutup ışıkları","Doğada kamuflaj","Su döngüsünün yolculuğu"],
+"İnsanlık ve toplum":["Şehirler nasıl şekillenir?","Diller neden değişir?","Para tarih boyunca nasıl evrildi?","Topluluklar nasıl iş birliği yapar?","Gelenekler nereden gelir?","Bilginin yayılma biçimleri","Göçlerin kültürlere etkisi","Hukukun toplumdaki rolü","Kuşaklar arası farklılıklar","Teknoloji gündelik hayatı nasıl değiştirdi?"],
+"Kısa hikâyeler":["Bir kararın bedeli","İstasyondaki yabancı","Küçük bir iyilik","Son ışık","Kayıp anahtar","Sessiz kütüphane","Dağın öteki yanı","Bir fincan çay","Son mektup","Beklenmedik karşılaşma"]
 };
 let data={reading:[],silence:[]};
 try{data=JSON.parse(localStorage.getItem('shugyo-v1'))||data}catch(e){}
@@ -408,17 +441,37 @@ $('saveChallenge').addEventListener('click',()=>{
  settings={...settings,days,start};saveSettings();alert('Challenge ayarları kaydedildi.');
 });
 $('themeMode').addEventListener('change',()=>{settings.theme=$('themeMode').value;saveSettings()});
+let selectedReadingTitle='';
+let selectedReadingDuration=5;
+function updateReadingChoices(){
+ const theme=$('themeSelect').value, topic=$('topicSelect').value||((TOPICS[theme]||[])[0]||'');
+ const suffix=selectedReadingDuration===5?'5 dakika':'10 dakika';
+ const titles=[`${topic} — I`,`${topic} — II`];
+ titles.forEach((title,i)=>{$('choiceTitle'+i).textContent=title;$('choiceMeta'+i).textContent=suffix+' · '+(theme==='Bilim ve evren'?'Bilim':theme)});
+ document.querySelectorAll('.reading-choice').forEach((b,i)=>b.classList.toggle('selected',b.dataset.reading===selectedReadingTitle));
+}
 function syncReadingTheme(theme){
  $('themeSelect').value=theme;
  document.querySelectorAll('.theme-tile').forEach(b=>b.classList.toggle('selected',b.dataset.theme===theme));
- const opts=TOPICS[theme]||[];$('topicSelect').innerHTML=opts.map(x=>`<option>${x}</option>`).join('');
- $('readingPlaceholder').innerHTML='';
+ const opts=TOPICS[theme]||[];
+ $('topicSelect').innerHTML=opts.map(x=>`<option>${x}</option>`).join('');
+ updateReadingChoices();
 }
 document.querySelectorAll('.theme-tile').forEach(b=>b.addEventListener('click',()=>syncReadingTheme(b.dataset.theme)));
 $('themeSelect').addEventListener('change',()=>syncReadingTheme($('themeSelect').value));
-document.querySelectorAll('.length-choice').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.length-choice').forEach(x=>x.classList.toggle('selected',x===b));$('lengthSelect').value=b.dataset.length}));
+document.querySelectorAll('.length-choice').forEach(b=>b.addEventListener('click',()=>{
+ document.querySelectorAll('.length-choice').forEach(x=>x.classList.toggle('selected',x===b));
+ selectedReadingDuration=Number(b.dataset.length)||5;
+ $('readMinutes').value=selectedReadingDuration;
+ updateReadingChoices();
+}));
+document.querySelectorAll('.reading-choice').forEach(b=>b.addEventListener('click',()=>{
+ selectedReadingTitle=$('choiceTitle'+b.dataset.reading).textContent;
+ document.querySelectorAll('.reading-choice').forEach(x=>x.classList.toggle('selected',x===b));
+}));
+$('topicSelect').addEventListener('change',updateReadingChoices);
 syncReadingTheme('Bilim ve evren');
-$('saveReading').addEventListener('click',()=>{const mins=Math.floor(Number($('readMinutes').value));if(!Number.isFinite(mins)||mins<1||mins>600){alert('Lütfen 1–600 arasında bir dakika gir.');return}const topic=$('topicSelect').value||'Serbest okuma';data.reading.push({date:todayKey(),minutes:mins,topic,theme:$('themeSelect').value||'Seçilmedi',length:$('lengthSelect').value});save();alert('Okuma kaydedildi.')});
+$('saveReading').addEventListener('click',()=>{const mins=Math.floor(Number($('readMinutes').value));if(!Number.isFinite(mins)||mins<1||mins>600){alert('Lütfen 1–600 arasında bir dakika gir.');return}const topic=selectedReadingTitle||$('topicSelect').value||'Serbest okuma';data.reading.push({date:todayKey(),minutes:mins,topic,theme:$('themeSelect').value||'Seçilmedi',length:selectedReadingDuration});save();alert('Okuma kaydedildi.')});
 let running=false,paused=false,remaining=300,total=300,lastTick=0,raf=null;
 function setDuration(){const m=Math.min(180,Math.max(1,Math.floor(Number($('silenceDuration').value)||5)));$('silenceDuration').value=m;if(!running){total=remaining=m*60;updateTimer()}}
 function updateTimer(){const m=Math.floor(remaining/60),s=Math.floor(remaining%60);$('timerDisplay').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;$('timerProgress').style.width=`${total?100*(total-remaining)/total:0}%`}
@@ -432,11 +485,21 @@ function sum(arr){return arr.reduce((n,x)=>n+x.minutes,0)}
 function uniqueDays(arr){return new Set(arr.map(x=>x.date)).size}
 function rows(tableId,items,kind){const tb=$(tableId);if(!items.length){tb.innerHTML=`<tr><td colspan="3" class="empty">Henüz kayıt yok.</td></tr>`;return}tb.innerHTML=items.slice().reverse().map(x=>kind==='reading'?`<tr><td>${fmtDate(x.date)}</td><td>${esc(x.topic)}</td><td>${x.minutes} dk</td></tr>`:`<tr><td>${fmtDate(x.date)}</td><td>${x.minutes} dk</td><td>${esc(x.status||'Tamamlandı')}</td></tr>`).join('')}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderSilenceChart(){
+ const box=$('silenceChart');if(!box)return;
+ const days=[];
+ for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+ const mins=data.silence.filter(x=>x.date===key).reduce((n,x)=>n+x.minutes,0);
+ days.push({key,label:d.toLocaleDateString('tr-TR',{weekday:'short'}).replace('.',''),mins});}
+ const max=Math.max(10,...days.map(x=>x.mins));
+ box.innerHTML=days.map(d=>`<div class="chart-day"><span class="chart-value">${d.mins||''}</span><div class="chart-track"><div class="chart-bar" style="height:${Math.max(0,d.mins/max*100)}%"></div></div><span class="chart-label">${d.label}</span></div>`).join('');
+ $('silenceTotal').textContent=sum(data.silence);$('silenceSessions').textContent=data.silence.length;$('silenceDays').textContent=uniqueDays(data.silence);
+}
 function renderAll(){
 renderChallenge();const r=data.reading,s=data.silence;const all=[...r,...s];const readDone=r.some(x=>x.date===todayKey()), silenceDone=s.some(x=>x.date===todayKey());$('todayReadStatus').textContent=readDone?'Tamamlandı':'Başlamadı';$('todayReadStatus').classList.toggle('done',readDone);$('todaySilenceStatus').textContent=silenceDone?'Tamamlandı':'Başlamadı';$('todaySilenceStatus').classList.toggle('done',silenceDone);
 $('readTotal').textContent=sum(r);$('readSessions').textContent=r.length;$('readDays').textContent=uniqueDays(r);$('silenceTotal').textContent=sum(s);$('silenceSessions').textContent=s.length;$('silenceDays').textContent=uniqueDays(s);
 $('allDays').textContent=uniqueDays(all);$('allRead').textContent=sum(r);$('allQuiet').textContent=sum(s);
-rows('readingRows',r,'reading');rows('silenceRows',s,'silence');
+rows('readingRows',r,'reading');rows('silenceRows',s,'silence');renderSilenceChart();
 const dates=Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`});
 $('combinedRows').innerHTML=dates.filter(d=>all.some(x=>x.date===d)).map(d=>`<tr><td>${fmtDate(d)}</td><td>${sum(r.filter(x=>x.date===d))} dk</td><td>${sum(s.filter(x=>x.date===d))} dk</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Henüz kayıt yok.</td></tr>';
 
