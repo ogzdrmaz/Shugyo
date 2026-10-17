@@ -300,7 +300,7 @@ header .day-pill, header .settings-open { display:none !important; }
 <div class="home-intro">
     
     <div class="challenge-progress"><div class="challenge-progress-meta"><span id="challengeDayLabel">1. gün</span><span id="challengeProgressLabel">0%</span></div><div class="challenge-track"><div id="challengeProgressBar"></div></div><div class="challenge-duration-progress"><div class="challenge-progress-meta"><span>Challenge ilerlemesi</span><span id="challengeDurationProgressLabel">0%</span></div><div class="challenge-track"><div id="challengeDurationProgressBar"></div></div></div></div>
-    <div class="quote-row"><blockquote class="sun-tzu-quote" id="dailyQuote"><span id="dailyQuoteText">“En büyük zafer, insanın kendine karşı kazandığı zaferdir.”</span><cite id="dailyQuoteSource">— Geleneksel özdeyiş</cite></blockquote><button type="button" class="quote-next" id="nextQuote" aria-label="Sonraki özlü sözü göster" title="Başka bir söz göster">↻</button></div>
+    <div class="quote-row"><blockquote class="sun-tzu-quote" id="dailyQuote"><span id="dailyQuoteText">“En büyük zafer, insanın kendine karşı kazandığı zaferdir.”</span><cite id="dailyQuoteSource">— Geleneksel özdeyiş</cite></blockquote><button type="button" class="quote-next" id="nextQuote" aria-label="Sonraki özlü sözü göster" title="Başka bir söz göster" onclick="nextDailyQuote(); return false;">↻</button></div>
   </div>
   <div class="table-wrap panel home-table">
     <table>
@@ -445,7 +445,8 @@ function renderDailyQuote(){
  if(sourceEl)sourceEl.textContent='— '+q.source;
 }
 function nextDailyQuote(){manualQuoteOffset=(manualQuoteOffset+1)%dailyQuotes.length;renderDailyQuote()}
-$('nextQuote').onclick=nextDailyQuote;
+const quoteNextButton=$('nextQuote');
+if(quoteNextButton){quoteNextButton.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();nextDailyQuote();},true);}
 
 const defaultSettings={days:100,start:todayKey(),theme:'olive'};
 let settings={...defaultSettings};
