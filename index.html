@@ -444,7 +444,8 @@ function renderDailyQuote(){
  if(textEl)textEl.textContent='“'+q.text+'”';
  if(sourceEl)sourceEl.textContent='— '+q.source;
 }
-$('nextQuote').addEventListener('click',()=>{manualQuoteOffset++;renderDailyQuote()});
+function nextDailyQuote(){manualQuoteOffset=(manualQuoteOffset+1)%dailyQuotes.length;renderDailyQuote()}
+$('nextQuote').onclick=nextDailyQuote;
 
 const defaultSettings={days:100,start:todayKey(),theme:'olive'};
 let settings={...defaultSettings};
@@ -458,7 +459,8 @@ function renderChallenge(){
  const kicker=$('challengeKicker');if(kicker)kicker.textContent=days+' GÜNLÜK YOLCULUK';
  $('challengeDayLabel').textContent=elapsed>=days?'Challenge tamamlandı':day+'. gün / '+days;
  $('challengeProgressLabel').textContent=pct+'%';$('challengeProgressBar').style.width=pct+'%';
- const durationPct=days<=1?(elapsed>=1?100:0):Math.round(Math.min(days-1,elapsed)/(days-1)*100);
+ const completedChallengeDays=new Set((data.reading||[]).filter(x=>x.date>=(settings.start||todayKey())&&x.date<=todayKey()).map(x=>x.date).filter(date=>(data.silence||[]).some(x=>x.date===date)));
+ const durationPct=Math.round(Math.min(days,completedChallengeDays.size)/days*100);
  $('challengeDurationProgressLabel').textContent=durationPct+'%';$('challengeDurationProgressBar').style.width=durationPct+'%';
  $('challengeDays').value=days;$('challengeStart').value=settings.start||todayKey();
 }
