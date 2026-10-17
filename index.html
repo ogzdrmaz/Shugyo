@@ -138,6 +138,13 @@ td{color:var(--text)}
 .challenge-duration-progress .challenge-progress-meta{margin-bottom:7px}
 .sun-tzu-quote{position:relative;z-index:1;margin:22px 0 0;padding:13px 0 0;border-top:1px solid rgba(82,99,75,.18);font-family:ui-serif,Georgia,serif;font-size:13px;line-height:1.55;font-style:italic;color:#555d4b;max-width:360px}
 .sun-tzu-quote cite{display:block;margin-top:7px;font:10px ui-sans-serif,-apple-system,sans-serif;color:#77796d;font-style:normal}
+
+.quote-row{display:flex;align-items:center;gap:10px;max-width:390px}
+.quote-row .sun-tzu-quote{flex:1;min-width:0}
+.quote-next{flex:0 0 30px;width:30px;height:30px;padding:0;border:1px solid rgba(82,99,75,.22);border-radius:50%;background:transparent;color:var(--muted);font-size:17px;line-height:1;cursor:pointer;display:grid;place-items:center;transition:background .2s,border-color .2s,transform .2s}
+.quote-next:hover{background:var(--panel2);border-color:var(--accent);transform:rotate(25deg)}
+.quote-next:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
 input[type=date]{width:100%;background:#f7f2e9;border:1px solid var(--line);border-radius:12px;padding:13px;color:var(--text);font-family:ui-sans-serif,-apple-system,sans-serif}
 body[data-theme="night"]{--bg:#171c20;--panel:#20282c;--panel2:#2b3538;--line:#394548;--text:#edf0e9;--muted:#a5b0ae;--accent:#c5d5bc;--accent-ink:#1a241f;background-image:radial-gradient(ellipse at 90% 0%,rgba(103,132,143,.18),transparent 34%)}
 body[data-theme="night"] .home-intro{background:linear-gradient(135deg,#29383a,#28302b);border-color:#3d4a46}
@@ -292,8 +299,8 @@ header .day-pill, header .settings-open { display:none !important; }
 <section class="view active" id="homeView">
 <div class="home-intro">
     
-    <div class="challenge-progress"><div class="challenge-progress-meta"><span id="challengeDayLabel">1. gün</span><span id="challengeProgressLabel">0%</span></div><div class="challenge-track"><div id="challengeProgressBar"></div></div><div class="challenge-duration-progress"><div class="challenge-progress-meta"><span>Challenge ilerlemesi</span><span id="challengeDurationProgressLabel">1%</span></div><div class="challenge-track"><div id="challengeDurationProgressBar"></div></div></div></div>
-    <blockquote class="sun-tzu-quote">“Her savaş, yapılmadan önce kazanılır ya da kaybedilir.”<cite>— Sun Tzu, Savaş Sanatı</cite></blockquote>
+    <div class="challenge-progress"><div class="challenge-progress-meta"><span id="challengeDayLabel">1. gün</span><span id="challengeProgressLabel">0%</span></div><div class="challenge-track"><div id="challengeProgressBar"></div></div><div class="challenge-duration-progress"><div class="challenge-progress-meta"><span>Challenge ilerlemesi</span><span id="challengeDurationProgressLabel">0%</span></div><div class="challenge-track"><div id="challengeDurationProgressBar"></div></div></div></div>
+    <div class="quote-row"><blockquote class="sun-tzu-quote" id="dailyQuote"><span id="dailyQuoteText">“En büyük zafer, insanın kendine karşı kazandığı zaferdir.”</span><cite id="dailyQuoteSource">— Geleneksel özdeyiş</cite></blockquote><button type="button" class="quote-next" id="nextQuote" aria-label="Sonraki özlü sözü göster" title="Başka bir söz göster">↻</button></div>
   </div>
   <div class="table-wrap panel home-table">
     <table>
@@ -425,6 +432,20 @@ header .day-pill, header .settings-open { display:none !important; }
 <script>
 const $=id=>document.getElementById(id);
 const todayKey=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+
+const dailyQuotes = [{"text": "En büyük zafer, insanın kendine karşı kazandığı zaferdir.", "source": "Geleneksel özdeyiş"}, {"text": "Bin millik yolculuk tek bir adımla başlar.", "source": "Laozi’ye atfedilir · Tao Te Ching"}, {"text": "Kendini fetheden, en güçlü düşmanını yenmiştir.", "source": "Özgün ifade · Stoacı düşünceden esinlenir"}, {"text": "Başkalarını bilen akıllıdır; kendini bilen aydınlanmıştır. Başkalarını yenen güçlüdür; kendini yenen kudretlidir.", "source": "Laozi’ye atfedilir · Tao Te Ching, 33 — serbest çeviri"}, {"text": "Zamanımız az olduğu için değil, çoğunu boşa harcadığımız için hayat kısa gelir.", "source": "Seneca · Yaşamın Kısalığı Üzerine, 1 — serbest çeviri"}, {"text": "Felsefeyi sözlerinle değil, davranışlarınla göster.", "source": "Epiktetos · El Kitabı, 46 — serbest çeviri"}, {"text": "Kendi gücünün dışında kalan şeyleri kendine aitmiş gibi görme.", "source": "Epiktetos · El Kitabı, 1 — serbest çeviri"}, {"text": "Bir insanın değeri, en çok neye emek verdiğiyle anlaşılır.", "source": "Özgün ifade"}, {"text": "Önce ne olmak istediğini kendine söyle; sonra yapman gerekeni yap.", "source": "Epiktetos · Söylevler, 3.23 — serbest çeviri"}, {"text": "Zorluklar insanlara kim olduklarını gösterir.", "source": "Epiktetos · Söylevler, 1.24 — serbest çeviri"}, {"text": "Vaktini koru; hayatın en değerli parçası odur.", "source": "Seneca · Ahlak Mektupları, 1 — serbest çeviri"}, {"text": "Kader, isteyeni sürükler; istemeyeni peşinden sürükler.", "source": "Stoacı gelenek · Cleanthes’e atfedilen sözün Seneca aktarımı"}, {"text": "Kendine hâkim olamayan, özgür değildir.", "source": "Epiktetos’un düşüncesinden uyarlama"}, {"text": "Düşüncelerin neyse, zihnin de zamanla ona dönüşür.", "source": "Marcus Aurelius · Kendime Düşünceler, 5.16 — serbest çeviri"}, {"text": "Bir işi yapabiliyorsan, onu yapmaktan şikâyet etme.", "source": "Marcus Aurelius · Kendime Düşünceler, 10.10 — serbest çeviri"}, {"text": "Savaşın en büyük ustalığı, düşmanı savaşmadan alt etmektir.", "source": "Sun Tzu · Savaş Sanatı, 3. bölüm — serbest çeviri"}, {"text": "Güçlü olan değil, şartları en iyi yöneten üstün gelir.", "source": "Savaş stratejisi temasından özgün ifade"}, {"text": "Zaferi isteyen, önce yenilgiye uğramayacak duruma gelmelidir.", "source": "Sun Tzu · Savaş Sanatı, 4. bölüm — serbest çeviri"}, {"text": "Hız, savaşın özüdür.", "source": "Sun Tzu · Savaş Sanatı, 11. bölüm — kısa serbest çeviri"}, {"text": "Başlamak için mükemmel olman gerekmez; ilerlemek için başlaman gerekir.", "source": "Modern özdeyiş · Kaynağı belirsiz"}];
+let manualQuoteOffset=0;
+function quoteDayNumber(){const d=new Date(todayKey()+'T00:00:00');return Math.floor(d.getTime()/86400000)}
+function renderDailyQuote(){
+ const base=((quoteDayNumber()%dailyQuotes.length)+dailyQuotes.length)%dailyQuotes.length;
+ const idx=(base+manualQuoteOffset+dailyQuotes.length)%dailyQuotes.length;
+ const q=dailyQuotes[idx];
+ const textEl=$('dailyQuoteText'),sourceEl=$('dailyQuoteSource');
+ if(textEl)textEl.textContent='“'+q.text+'”';
+ if(sourceEl)sourceEl.textContent='— '+q.source;
+}
+$('nextQuote').addEventListener('click',()=>{manualQuoteOffset++;renderDailyQuote()});
+
 const defaultSettings={days:100,start:todayKey(),theme:'olive'};
 let settings={...defaultSettings};
 try{settings={...defaultSettings,...JSON.parse(localStorage.getItem('shugyo-settings')||'{}')}}catch(e){}
@@ -437,7 +458,7 @@ function renderChallenge(){
  const kicker=$('challengeKicker');if(kicker)kicker.textContent=days+' GÜNLÜK YOLCULUK';
  $('challengeDayLabel').textContent=elapsed>=days?'Challenge tamamlandı':day+'. gün / '+days;
  $('challengeProgressLabel').textContent=pct+'%';$('challengeProgressBar').style.width=pct+'%';
- const durationPct=elapsed>=days?100:(elapsed<0?0:Math.round(Math.min(days,elapsed+1)/days*100));
+ const durationPct=days<=1?(elapsed>=1?100:0):Math.round(Math.min(days-1,elapsed)/(days-1)*100);
  $('challengeDurationProgressLabel').textContent=durationPct+'%';$('challengeDurationProgressBar').style.width=durationPct+'%';
  $('challengeDays').value=days;$('challengeStart').value=settings.start||todayKey();
 }
@@ -450,7 +471,10 @@ try{data=JSON.parse(localStorage.getItem('shugyo-v1'))||data}catch(e){}
 function save(){localStorage.setItem('shugyo-v1',JSON.stringify(data));renderAll()}
 function showView(id,key){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.key===key));window.scrollTo({top:0,behavior:'smooth'});renderAll()}
 document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view,b.dataset.key)));
-applyTheme();renderChallenge();
+applyTheme();renderChallenge();renderDailyQuote();
+// Tarih yerel cihazın takviminden alınır; uygulama açık kalsa da gün değişimi fark edilir.
+let lastObservedDay=todayKey();
+setInterval(()=>{const dayNow=todayKey();if(dayNow!==lastObservedDay){lastObservedDay=dayNow;manualQuoteOffset=0;renderDailyQuote();renderChallenge();renderAll();}},30000);
 $('saveChallenge').addEventListener('click',()=>{
  const days=Math.floor(Number($('challengeDays').value));const start=$('challengeStart').value;
  if(!Number.isFinite(days)||days<1||days>365){alert('Challenge süresi 1–365 gün arasında olmalı.');return}
